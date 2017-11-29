@@ -1,6 +1,6 @@
 {
   "name": "@calculemus/oli-embedded-harness",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A harness for simplifying custom embedded activity creation in Carnegie Mellon's OLI system",
   "main": "main.js",
   "scripts": {
