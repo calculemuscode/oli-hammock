@@ -30,10 +30,10 @@ function validatePart(part) {
     if (typeof(part) !== "object") {
         throw new Error("validatePart: part not an object");
     }
-    if (!part.hasOwnProperty("score") && "number" !== typeof(part.score)) {
+    if (part.hasOwnProperty("score") && "number" !== typeof(part.score)) {
         throw new Error("validatePart: no score for part")
     }
-    if (!part.hasOwnProperty("score") && part.score <= 0) {
+    if (part.hasOwnProperty("score") && part.score <= 0) {
         throw new Error("validatePart: score must be strictly positive");
     }
     // Validate more?
