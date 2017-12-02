@@ -8,14 +8,14 @@ embedded activity framework. OLI runs the activity+hammock combination, which is
 help of Webpack, into something that looks like a regular old activity to the OLI Superactivity.
 
 ```
-              -------------------------- Your activity, resting in the hammock
+              -------------------- Your activity, resting in hammock
               |
-              |           |------------- The OLI Hammock
+              |           |------- The OLI Hammock
               v           v
-\uuuu                  uuuu/ <---------- The OLI Superactivity & OLI's APIs
- \ uuuuu   o<-<     uuuuu /
-  \    uuuuuuuuuuuuuu    /
-   \                    /
+\uuuu                  uuuu/   |-- The OLI Superactivity & OLI APIs
+ \ uuuuu   o<-<     uuuuu /    |
+  \    uuuuuuuuuuuuuu    /     |
+   \                    / <----|
    ----------------------
 ```
 
@@ -35,15 +35,15 @@ test your activity without uploading it to OLI.
 
 ```
 |- main.xml           -- <embed-activity/> specification file
-|- main.js            -- Entry point for assignment HTML
+|- main.js            -- Entry point for assignment
 |- package.json       -- Bolierplate
 |- webpack.config.js  -- Bolierplate
 |- assets
     |- Integers
        |- webcontent
           |- evenodd
-             |- layout.html     -- The initial template for the question
-             |- questions.json  -- The question specification
+             |- layout.html     -- HTML template
+             |- questions.json  -- Question spec
 ```
 
 This is the simplest imaginable project; it doesn't do any hints or formatting of output at all.
@@ -51,9 +51,8 @@ This is the simplest imaginable project; it doesn't do any hints or formatting o
 main.xml
 --------
 
-The `main.xml` file is only needed if you plan to test the project. It will need to contain at least two
-assets, "layout" and "questions". Other assets can be freely added, but the harness expects all assets to have
-unique names.
+The `main.xml` file for any hammock-based activity needs to contain at least two assets, "layout" and
+"questions". Other assets can be freely added, but the harness expects all assets to have unique names.
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -178,7 +177,7 @@ package.json
 
 The first boilerplate file is `package.json`; we use NPM to install dependencies and run scripts.
 
-```
+``` json
 {
   "scripts": {
     "webpack": "webpack",
