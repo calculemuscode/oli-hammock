@@ -4,5 +4,5 @@
   "description": "A harness for simplifying custom embedded activity creation in Carnegie Mellon's OLI system",
   "main": "main.js",
   "author": "Calculemus LLC",
-  "license": "CC-BY-SA-4.0",
+  "license": "CC-BY-SA-4.0"
 }
