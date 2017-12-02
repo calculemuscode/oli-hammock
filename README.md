@@ -5,7 +5,7 @@ grade activities.
 
 You wrap your simple activity specification up in the OLI Hammock, and you hang the hammock into the OLI
 embedded activity framework. OLI runs the activity+hammock combination, which is smushed together with the
-help of Webpack, like a regular old activity.
+help of Webpack, into something that looks like a regular old activity to the OLI Superactivity.
 
 ```
               -------------------------- Your activity, resting in the hammock
@@ -22,12 +22,16 @@ help of Webpack, like a regular old activity.
 Example project
 ===============
 
-We're assuming here that you've previously seen the XML file containing an `<embed-activity/>` element, and
-you have some sense of what you want or expect that file to look like.
+This tutorial walks through the
+[evenodd](https://github.com/calculemuscode/oli-hammock-examples/tree/master/evenodd) example in the
+[oli-hammock examples](https://github.com/calculemuscode/oli-hammock-examples) assuming here that you've
+previously seen the XML file containing an `<embed-activity/>` element, and you have some sense of what you
+want or expect that file to look like.
 
 An activity should be its own npm project, structured roughly like this. Likely you won't be using the
-`Integers` directory here; you may want to make `assets` a symlink to the appropriate place in the OLI
-project's SVN directory.
+`Integers` directory here. You may want to make `assets` and `main.xml` symlinks to the appropriate place in
+the OLI project's SVN directory. You can also omit `assets` and `main.xml`, but then you will not be able to
+test your activity without uploading it to OLI.
 
 ```
 |- main.xml           -- <embed-activity/> specification file
@@ -42,7 +46,7 @@ project's SVN directory.
              |- questions.json  -- The question specification
 ```
 
-This is the simplest imaginable project, and doesn't do any hints or formatting of output at all. Check 
+This is the simplest imaginable project; it doesn't do any hints or formatting of output at all.
 
 main.xml
 --------
@@ -64,10 +68,15 @@ unique names.
 </embed_activity>
 ```
 
+The assets file does much of the declarative specification of the project. We'll look at the `layout.html` and
+`questions.json` files next. They don't need to actually be named `layout.html` and `questions.json`, they
+just need to be `.html` and `.json` assets with the right `asset name`.
+
 layout.html
 -----------
 
-The assets do much of the declarative specification of the fine. The `layout.html` file defines a template
+The `layout.html` file defines a template for receiving student input and displaying hints and feedback. It
+does not include the submission logic.
 
 ``` html
 <div>
@@ -116,20 +125,19 @@ module.exports = hammock.simple({
 });
 ```
 
-The `render` function has to be careful what changes it makes to the layout: this funciton must always produce
-the same display given the same information, regardless of what `render` calls have happened earlier.
+The `render` function changes the contents defined in the `layout` asset, it is the only function that does
+so, and it has to be careful what changes it makes to the layout. This funciton must _always_ produce the same
+display given the same information, regardless of what sequence of `render` calls have happened earlier.
 
-The `read` function captures all student response data into some serializable object; the hammock doesn't care
-what type of data this is.
+The `read` function captures all student response data into an array of serializable objects (one per question
+part). The hammock doesn't care what type of data this is, as long as `JSON.parse(JSON.stringify(data))` is
+structurally the same as `data`.
 
 The `parse` function is optional; if it is omitted, then the `read` function needs to produce an array of
-_strings_, which will themselves be used as the keys for grading.
-
-
-You'll need to create a node project with three or four files. The `questions.json` file and `layout.html`
-files are optional, but if they (or any other assets) exist, then they should be placed in the `assets` folder
-along the same path listed in the project's XML configuration file. (Suggestion: make the contents of the
-`assets` folder a symlink into the actual OLI project.)
+_strings_, which will themselves be used as the keys for grading. If there's one `parse` function, it's used
+for all question parts. If there's an array of `parse` functions, then one is used for each question. (See the
+[intmax](https://github.com/calculemuscode/oli-hammock-examples/tree/master/intmax) example project for an
+example.)
 
 questions.json
 --------------
@@ -177,7 +185,7 @@ The first boilerplate file is `package.json`; we use NPM to install dependencies
     "watch": "webpack-dev-server --progress --colors"
   },
   "devDependencies": {
-    "@calculemus/oli-hammock": "^0.0.2",
+    "@calculemus/oli-hammock": "^0.0.3",
     "path": "^0.12.7",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.4"
@@ -214,5 +222,9 @@ module.exports = {
 }
 ```
 
-With these six files in place, you can run `npm i` and `npm run watch` and then go to http://localhost:8080/
+With these six files in place, you can run `npm i` and `npm run watch` and then go to [http://localhost:8080/]
 to interact with the assignment.
+
+If you set up the `assets` directory as a symlink, and you want `npm run webpack` to put the complied file in,
+say, `Integers/webcontent/evenodd/activity.js` so that it can be checked right in to SVN, then you would
+change the `path` argument under `output` to `path.resolve(__dirname, "assets/Integers/webcontent/evenodd")`.
