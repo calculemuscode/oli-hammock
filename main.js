@@ -108,6 +108,7 @@ module.exports.simple = function (activity) {
                 if (assets.has("layout")) {
                     $("#oli-embed").append(assets.get("layout"));
                 }
+
                 $("<link/>", {
                     rel: "stylesheet",
                     type: "text/css",
