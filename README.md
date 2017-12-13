@@ -8,12 +8,12 @@ embedded activity framework. OLI runs the activity+hammock combination, which is
 help of Webpack, into something that looks like a regular old activity to the OLI Superactivity.
 
 ```
-              -------------------- Your activity, resting in hammock
-              |
-              |           |------- The OLI Hammock
-              v           v
-\uuuu                  uuuu/   |-- The OLI Superactivity & OLI APIs
- \ uuuuu   o<-<     uuuuu /    |
+               ------------------- Your activity, resting in hammock
+               |
+               v          |------- The OLI Hammock
+              o           v
+\uuuu        /|\       uuuu/   |-- The OLI Superactivity & OLI APIs
+ \ uuuuu     / \    uuuuu /    |
   \    uuuuuuuuuuuuuu    /     |
    \                    / <----|
    ----------------------
@@ -22,9 +22,9 @@ help of Webpack, into something that looks like a regular old activity to the OL
 Example project
 ===============
 
-This tutorial walks through the
+This walkthrough covers the
 [evenodd](https://github.com/calculemuscode/oli-hammock-examples/tree/master/evenodd) example in the
-[oli-hammock examples](https://github.com/calculemuscode/oli-hammock-examples) assuming here that you've
+[oli-hammock examples](https://github.com/calculemuscode/oli-hammock-examples). It assumes you've
 previously seen the XML file containing an `<embed-activity/>` element, and you have some sense of what you
 want or expect that file to look like.
 
@@ -33,18 +33,14 @@ An activity should be its own npm project, structured roughly like this. Likely 
 the OLI project's SVN directory. You can also omit `assets` and `main.xml`, but then you will not be able to
 test your activity without uploading it to OLI.
 
-```
-|- main.xml           -- <embed-activity/> specification file
-|- main.js            -- Entry point for assignment
-|- package.json       -- Bolierplate
-|- webpack.config.js  -- Bolierplate
-|- assets
-    |- Integers
-       |- webcontent
-          |- evenodd
-             |- layout.html     -- HTML template
-             |- questions.json  -- Question spec
-```
+
+ * `main.xml` - `<embed-activity/>` specification file
+ * `main.js` - Entry point for assignment (defined in `package.json`)
+ * `package.json` - boilerplate
+ * `webpack.config.js` - boilerplate (needed for testing)
+ * `assets/Integers/webcontent/evenodd` - Matches path in `main.xml`
+    * `layout.html` - HTML template for question
+    * `questions.json` - Question spec, forming to {@link QuestionSpec} type
 
 This is the simplest imaginable project; it doesn't do any hints or formatting of output at all.
 
