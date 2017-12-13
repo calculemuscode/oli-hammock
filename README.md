@@ -145,6 +145,8 @@ The `questions.json` asset defines how many parts a question has (this must agre
 `read` function). This file includes most of the grading logic; if there is no `parse` function defined, then
 it includes all of the grading and feedback logic.
 
+The questions.json file should either be a single {@link QuestionSpec} or a list of QuestionSpec objects.
+
 ``` json
 {
   "prompt": "Enter a nonnegative even number, then a nonnegative odd number",
