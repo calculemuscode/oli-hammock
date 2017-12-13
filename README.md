@@ -3,8 +3,8 @@ The oli-hammock package is designed for [OLI](http://oli.cmu.edu/) developers th
 assumptions than the default OLI Superactivity; the tradeoff is that there is less code required to create and
 grade activities.
 
-You wrap your simple activity specification up in the OLI Hammock, and you hang the hammock into the OLI
-embedded activity framework. OLI runs the activity+hammock combination, which is smushed together with the
+You wrap your simple {@link Activity} specification up in the OLI Hammock, and you hang the hammock into the
+OLI embedded activity framework. OLI runs the activity+hammock combination, which is smushed together with the
 help of Webpack, into something that looks like a regular old activity to the OLI Superactivity.
 
 ```
@@ -35,7 +35,8 @@ test your activity without uploading it to OLI.
 
 
  * `main.xml` - `<embed-activity/>` specification file
- * `main.js` - Entry point for assignment (defined in `package.json`)
+ * `main.js` - Entry point for assignment (defined in `package.json`) that calls the {@link simple} function
+    with an {@link Activity} object defining the activity.
  * `package.json` - boilerplate
  * `webpack.config.js` - boilerplate (needed for testing)
  * `assets/Integers/webcontent/evenodd` - Matches path in `main.xml`

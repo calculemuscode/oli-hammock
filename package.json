@@ -1,6 +1,6 @@
 {
     "name": "@calculemus/oli-hammock",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description":
         "A harness for simplifying custom embedded activity creation in Carnegie Mellon's OLI system",
     "main": "lib/index.js",
@@ -28,7 +28,7 @@
     "bugs": {
         "url": "https://github.com/robsimmons/oli-hammock/issues"
     },
-    "homepage": "https://github.com/robsimmons/oli-doc#readme",
+    "homepage": "http://oli-hammock.surge.sh/",
     "prettier": {
         "printWidth": 110,
         "tabWidth": 4
