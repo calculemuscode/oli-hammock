@@ -40,7 +40,7 @@ test your activity without uploading it to OLI.
  * `webpack.config.js` - boilerplate (needed for testing)
  * `assets/Integers/webcontent/evenodd` - Matches path in `main.xml`
     * `layout.html` - HTML template for question
-    * `questions.json` - Question spec, forming to {@link QuestionSpec} type
+    * `questions.json` - Question spec, conforming to {@link QuestionSpec} type
 
 This is the simplest imaginable project; it doesn't do any hints or formatting of output at all.
 
