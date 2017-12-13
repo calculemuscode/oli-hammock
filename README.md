@@ -97,13 +97,25 @@ responses and feedback onto the layout, how to `read` current student responses 
 
 ``` js
 const hammock = require("@calculemus/oli-hammock");
+
+const parse = (str) => {
+    if (!str || str === "") return "blank";
+    const i = parseInt(str);
+    if (isNaN(i)) return "nan";
+    if (i.toString() !== str) return "nan";
+    if (i < 0) return "neg";
+    return i % 2 === 0 ? "even" : "odd";
+};
+
 module.exports = hammock.simple({
+    init: () => ["", ""],
+
     render: (data) => {
        $("#prompt").text(data.prompt);
-       $("#blank0").val(data.parts[0].response);
-       $("#feedback0").text(data.parts[0].analysis ? data.parts[0].analysis.feedback : "");
-       $("#blank1").val(data.parts[1].response);
-       $("#feedback1").text(data.parts[1].analysis ? data.parts[1].analysis.feedback : "");
+       $("#blank0").val(data.response[0]);
+       $("#feedback0").text(data.parts[0].feedback ? data.parts[0].feedback.message : "");
+       $("#blank1").val(data.response[1]);
+       $("#feedback1").text(data.parts[1].feedback ? data.parts[1].feedback.message : "");
     },
 
     read: () => {
@@ -113,14 +125,7 @@ module.exports = hammock.simple({
        ];
     },
 
-    parse: str => {
-       if (!str || str === "") return "blank";
-       const i = parseInt(str);
-       if (isNaN(i)) return "nan";
-       if (i.toString() != i) return "nan";
-       if (i < 0) return "neg";
-       return i % 2 === 0 ? : "even" : "odd";
-    }
+    parse: data => data.map(parse)
 });
 ```
 

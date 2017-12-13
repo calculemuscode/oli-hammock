@@ -1,3 +1,4 @@
+import { QuestionSpec } from "./spec";
 import { simple } from "./simplehammock";
 
-export { simple };
+export { QuestionSpec, simple };
