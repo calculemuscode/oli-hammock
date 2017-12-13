@@ -1,4 +1,4 @@
 import { QuestionSpec } from "./spec";
-import { simple } from "./simplehammock";
+import { hammock } from "./hammock";
 
-export { QuestionSpec, simple };
+export { QuestionSpec, hammock };

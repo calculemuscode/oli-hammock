@@ -35,7 +35,7 @@ test your activity without uploading it to OLI.
 
 
  * `main.xml` - `<embed-activity/>` specification file
- * `main.js` - Entry point for assignment (defined in `package.json`) that calls the {@link simple} function
+ * `main.js` - Entry point for assignment (defined in `webpack.config.js`) that calls the {@link hammock} function
     with an {@link Activity} object defining the activity.
  * `package.json` - boilerplate
  * `webpack.config.js` - boilerplate (needed for testing)
@@ -104,7 +104,7 @@ const parse = (str) => {
     return i % 2 === 0 ? "even" : "odd";
 };
 
-module.exports = hammock.simple({
+module.exports = hammock.hammock({
     init: () => ["", ""],
 
     render: (data) => {
@@ -157,7 +157,7 @@ The questions.json file should either be a single {@link QuestionSpec} or a list
       "match": {
         "even": [true, "Correct, that's an even number."],
         "odd": "Incorrect, that's not an even number.",
-        "neg": "Incorrect. That's a negative number, and we asked for a nonnegative number.",
+        "neg": "Incorrect. That's negative; we asked for a nonnegative number.",
         "blank": "Please given an answer for this part."
       },
       "nomatch": "That's not an integer."
@@ -167,7 +167,7 @@ The questions.json file should either be a single {@link QuestionSpec} or a list
         "even": "Incorrect, that's not an odd number.",
         "odd": [true, "Correct, that's an odd number."],
 
-        "neg": "Incorrect. That's a negative number, and we asked for a nonnegative number.",
+        "neg": "Incorrect. That's negative; we asked for a nonnegative number.",
         "blank": "Please given an answer for this part."
       },
       "nomatch": "That's not an integer."
@@ -225,7 +225,7 @@ module.exports = {
 }
 ```
 
-With these six files in place, you can run `npm i` and `npm run watch` and then go to [http://localhost:8080/]
+With these six files in place, you can run `npm i` and `npm run watch` and then go to http://localhost:8080/
 to interact with the assignment.
 
 If you set up the `assets` directory as a symlink, and you want `npm run webpack` to put the complied file in,

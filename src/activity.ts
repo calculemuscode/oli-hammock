@@ -13,7 +13,7 @@ export interface QuestionData<UserDefinedData> {
     /**
      * The stored state of this question.
      */
-    response: UserDefinedData;
+    state: UserDefinedData;
 
     /**
      * Any hints associated with the question as a whole. (Does not store the state of

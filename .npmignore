@@ -1,5 +1,6 @@
-.~
+.*
 *~
-node_modules
-src
-typedoc
+tsconfig.json
+node_modules/
+src/
+typedoc/

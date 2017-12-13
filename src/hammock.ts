@@ -52,7 +52,7 @@ function constructQuestionData<UserDefinedData>(
     feedback: (FeedbackData | null)[]
 ): QuestionData<UserDefinedData> {
     const questionData: QuestionData<UserDefinedData> = {
-        response: user,
+        state: user,
         parts: question.parts.map((part: PartInt, i): PartData => {
             const partData: PartData = {};
             const thisFeedback = feedback[i];
@@ -69,7 +69,7 @@ function constructQuestionData<UserDefinedData>(
     return questionData;
 }
 
-export function simple<UserDefinedData>(activity: Activity<UserDefinedData>): SuperActivityClient {
+export function hammock<UserDefinedData>(activity: Activity<UserDefinedData>): SuperActivityClient {
     return {
         init: function(superActivity: SuperActivity, activityData: Element) {
             readAssets(superActivity.webContentFolder, activityData).then(assets => {
