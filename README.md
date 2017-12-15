@@ -1,6 +1,6 @@
-(This documentation is the nicest to read at http://oli-hammock.surge.sh.)
+(This documentation is the nicest to read at https://oli-hammock.surge.sh.)
 
-The oli-hammock package is designed for [OLI](http://oli.cmu.edu/) developers that want to make simple
+The oli-hammock package is designed for [OLI](https://oli.cmu.edu/) developers that want to make simple
 [embedded activities](https://github.com/CMUOLI/OLI/wiki/Creating-an-Embedded-Activity). Assignments made with
 OLI Hammock are significantly less configurable than activities built directly against the OLI Superactivity;
 the tradeoff is that there is less code required to create and grade activities.
