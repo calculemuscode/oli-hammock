@@ -3,26 +3,21 @@
  * correctly.
  */
 export interface SuperActivity {
-    webContentFolder: string;
+    readonly webContentFolder: string;
+    currentAttempt: string | number;
 
-    /*
-    currentAttempt: number;
-    fileRecordList: { [identifier: string]: void };
-
-    loadFileRecord(id: string, attempt: number, callback: (response: any) => void): void;
     writeFileRecord(
-        id: string,
-        mimetype: "text/plain" | "text/xml" | "application/json",
-        attempt: number,
-        content: any,
-        callback: (response: any) => void
+        recordname: string,
+        mimetype: "application/json",
+        attempt: string | number,
+        content: string,
+        callback: () => void
     ): void;
-
-    startAttempt(callback: (response: any) => void): void;
-    endAttempt(callback: (response: any) => void): void;
-    scoreAttempt(id: "boolean" | "currency" | "decimal" | "fraction" | "integer" | "percent" | "string", value: number, callback: (response: any) => void): void;
-    isCurrentAttemptCompleted(): boolean;
-*/
+    scoreAttempt(typ: "percent", score: number, callback: () => void): void;
+    endAttempt(callback: () => void): void;
+    startAttempt(callback: (response: Element) => void): void;
+    sessionData: Element;
+    loadFileRecord(recordname: string, attempt: string | number, callback: (content: any) => void): void;
 }
 
 export interface SuperActivityClient {
