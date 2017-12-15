@@ -20,6 +20,13 @@ function initializeHTML(assets: Map<string, Element>): void {
     if (layout) $("#oli-embed").append(layout);
 }
 
+/**
+ * Wrap the activity into the {@link SuperActivityClient} form that {@link SuperActivity} expects and will
+ * call.
+ *
+ * This is the only function exported by the oli-hammock NPM package. When you are using the OLI Hammock, your
+ * entry point should call this function and pass an {@link Activity} to it.
+ */
 export function hammock<UserData>(activity: Activity<UserData>): SuperActivityClient {
     return {
         init: (superActivity: SuperActivity, activityData: Element): void => {

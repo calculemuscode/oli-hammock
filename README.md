@@ -1,11 +1,12 @@
 The oli-hammock package is designed for [OLI](http://oli.cmu.edu/) developers that want to make simple
-[embedded activities](https://github.com/CMUOLI/OLI/wiki/Creating-an-Embedded-Activity). It makes many more
-assumptions than the default OLI Superactivity; the tradeoff is that there is less code required to create and
-grade activities.
+[embedded activities](https://github.com/CMUOLI/OLI/wiki/Creating-an-Embedded-Activity). Assignments made with
+OLI Hammock are significantly less configurable than activities built directly against the OLI Superactivity;
+the tradeoff is that there is less code required to create and grade activities.
 
-You wrap your simple {@link Activity} specification up in the OLI Hammock, and you hang the hammock into the
-OLI embedded activity framework. OLI runs the activity+hammock combination, which is smushed together with the
-help of Webpack, into something that looks like a regular old activity to the OLI Superactivity.
+You wrap your simple {@link Activity} specification up in the OLI Hammock, with the {@link hammock} function,
+and you hang the hammock into the OLI embedded activity framework. OLI runs the activity+hammock combination,
+which gets smushed together with the help of Webpack into something that might as well be a regular old
+embedded activity, as far as OLI Superactivity is concerned.
 
 ```
                ------------------- Your activity, resting in hammock
