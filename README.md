@@ -26,10 +26,8 @@ Example project
 ===============
 
 This walkthrough covers the
-[evenodd](https://github.com/calculemuscode/oli-hammock-examples/tree/master/evenodd) example in the
-[oli-hammock examples](https://github.com/calculemuscode/oli-hammock-examples). It assumes you've
-previously seen the XML file containing an `<embed-activity/>` element, and you have some sense of what you
-want or expect that file to look like.
+[evenodd](https://github.com/calculemuscode/oli-hammock-examples/tree/master/evenodd) project in the
+[oli-hammock examples](https://github.com/calculemuscode/oli-hammock-examples).
 
 An activity should be its own npm project, structured roughly like this. This is the simplest imaginable
 project; it doesn't do any hints or formatting of output at all. The
@@ -186,7 +184,6 @@ Here are the files you need:
  * `main.xml` - `<embed-activity/>` specification file, maybe should be a symlink to
    `$OLI_REPO/Integers/x-oli-embed-activity/evenodd.xml`.
  * `assets/Integers/webcontent/evenodd` - Path after `assets` matches the paths in `main.xml`.
-   testing locally,
     * `layout.html` - HTML template for question.
     * `questions.json` - Question spec, conforming to {@link QuestionSpec} type.
 
