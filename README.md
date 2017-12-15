@@ -37,12 +37,12 @@ the OLI project's SVN directory. You can also omit `assets` and `main.xml`, but 
 test your activity without uploading it to OLI.
 
 
- * `main.xml` - `<embed-activity/>` specification file
+ * `main.xml` - `<embed-activity/>` specification file, only needed for testing
  * `main.js` - Entry point for assignment (defined in `webpack.config.js`) that calls the {@link hammock} function
     with an {@link Activity} object defining the activity.
  * `package.json` - boilerplate
- * `webpack.config.js` - boilerplate (needed for testing)
- * `assets/Integers/webcontent/evenodd` - Matches path in `main.xml`
+ * `webpack.config.js` - boilerplate
+ * `assets/Integers/webcontent/evenodd` - Matches path in `main.xml`, only needed for testing locally
     * `layout.html` - HTML template for question
     * `questions.json` - Question spec, conforming to {@link QuestionSpec} type
 
