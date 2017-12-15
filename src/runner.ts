@@ -11,11 +11,16 @@ export class Runner<UserDefinedData> {
     private feedbackArray: (FeedbackData | null)[][];
     private questionArray: QuestionInt[];
 
-    constructor(activity: Activity<UserDefinedData>, superActivity: SuperActivity, activityData: Element, questionArray: QuestionInt[]) {
+    constructor(
+        activity: Activity<UserDefinedData>,
+        superActivity: SuperActivity,
+        activityData: Element,
+        questionArray: QuestionInt[]
+    ) {
         this.activity = activity;
         this.superActivity = superActivity;
         if (superActivity.currentAttempt === "none") {
-            setTimeout(() => console.log(`Delayed: ${superActivity.currentAttempt}`), 5000);
+            setTimeout(() => console.error(`Delayed: ${superActivity.currentAttempt}`), 5000);
             throw new Error("Error in superactivity: currentAttempt non-numeric");
         }
         this.currentAttempt = parseInt(superActivity.currentAttempt.toString());
@@ -59,27 +64,41 @@ export class Runner<UserDefinedData> {
         const savedData = new Map<string, any>();
         const promises = new Map<string, Promise<void>>();
 
-        $(this.superActivity.sessionData).find("storage file_directory file_record").each((index, record) => {
-            const attempt = parseInt($(record).find("record_context").attr("attempt") || "-1");
-            const filename = $(record).attr("file_name") || "undefined";
-            if (attempt === this.currentAttempt) {
-                promises.set(filename, new Promise(resolve => {
-                    this.superActivity.loadFileRecord(filename, this.currentAttempt - 1, (result: any) => {
-                        savedData.set(filename, result);
-                        resolve();
-                    });
-                }));
-            }
-        });
+        $(this.superActivity.sessionData)
+            .find("storage file_directory file_record")
+            .each((index, record) => {
+                const attempt = parseInt(
+                    $(record)
+                        .find("record_context")
+                        .attr("attempt") || "-1"
+                );
+                const filename = $(record).attr("file_name") || "undefined";
+                if (attempt === this.currentAttempt - 1) {
+                    promises.set(
+                        filename,
+                        new Promise(resolve => {
+                            this.superActivity.loadFileRecord(
+                                filename,
+                                this.currentAttempt - 1,
+                                (result: any) => {
+                                    savedData.set(filename, result);
+                                    resolve();
+                                }
+                            );
+                        })
+                    );
+                }
+            });
 
-        if (promises.has("reset")) return Promise.resolve();
-        else if (promises.has("userdata") && promises.has("feedback")) {
+        if (promises.has("reset")) {
+            return Promise.resolve();
+        } else if (promises.has("userdata") && promises.has("feedback")) {
             return Promise.all(promises.values()).then(() => {
                 this.userDataArray = savedData.get("userdata");
                 this.feedbackArray = savedData.get("feedback");
             });
         } else {
-            console.error("Runner.readSavedData: Not the first attempt, but there is no saved data");
+            console.error(`Runner.readSavedData: Attempt ${this.currentAttempt}, no saved data`);
             return Promise.resolve();
         }
     }
@@ -136,7 +155,6 @@ export class Runner<UserDefinedData> {
                                                 .attr("current_attempt") || "-1"
                                         );
                                         this.currentAttempt = newAttempt;
-                                        this.render();
                                     });
                                 });
                             }
@@ -165,7 +183,6 @@ export class Runner<UserDefinedData> {
                                 .attr("current_attempt") || "-1"
                         );
                         this.currentAttempt = newAttempt;
-                        this.render();
                     });
                 });
             }

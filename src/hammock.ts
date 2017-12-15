@@ -1,7 +1,7 @@
 import { SuperActivity, SuperActivityClient } from "./superactivity";
-import { Activity, QuestionData, PartData, FeedbackData } from "./activity";
+import { Activity } from "./activity";
 import { readAssets } from "./assets";
-import { QuestionInt, QuestionsInt, PartInt, validateQuestions } from "./int";
+import { validateQuestions } from "./int";
 import { Runner } from "./runner";
 
 /**
@@ -28,24 +28,31 @@ export function hammock<UserData>(activity: Activity<UserData>): SuperActivityCl
                 const questions = validateQuestions(assets.get("questions"));
                 const runner = new Runner<UserData>(activity, superActivity, activityData, questions);
                 runner.readSavedData().then(() => {
+                    $("#oli-embed").append(
+                        $("<button/>", {
+                            class: "btn btn-primary btn-sm",
+                            text: "SUBMIT",
+                            click: () => {
+                                runner.submit();
+                                runner.render();
+                            }
+                        })
+                    );
 
-                    $("#oli-embed").append($("<button/>", {
-                        class: "btn btn-primary btn-sm",
-                        text: "SUBMIT",
-                        click: () => runner.submit()
-                    }));
-
-                    $("#oli-embed").append($("<button/>", {
-                        class: "btn btn-primary btn-sm",
-                        text: "RESET",
-                        click: () => runner.reset()
-                    }));
+                    $("#oli-embed").append(
+                        $("<button/>", {
+                            class: "btn btn-primary btn-sm",
+                            text: "RESET",
+                            click: () => {
+                                runner.reset();
+                                runner.render();
+                            }
+                        })
+                    );
 
                     runner.render();
-
                 });
             });
         }
     };
 }
-
