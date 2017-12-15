@@ -31,69 +31,25 @@ This walkthrough covers the
 previously seen the XML file containing an `<embed-activity/>` element, and you have some sense of what you
 want or expect that file to look like.
 
-An activity should be its own npm project, structured roughly like this. Likely you won't be using the
-`Integers` directory here. You may want to make `assets` and `main.xml` symlinks to the appropriate place in
-the OLI project's SVN directory. You can also omit `assets` and `main.xml`, but then you will not be able to
-test your activity without uploading it to OLI.
+An activity should be its own npm project, structured roughly like this. This is the simplest imaginable
+project; it doesn't do any hints or formatting of output at all. The
+[names](https://github.com/calculemuscode/oli-hammock-examples/tree/master/names) example is a slightly more
+realistic activity that uses [oli-widgets](https://www.npmjs.com/package/@calculemus/oli-widgets) to give
+elements the correct style.
 
-
- * `main.xml` - `<embed-activity/>` specification file, only needed for testing
  * `main.js` - Entry point for assignment (defined in `webpack.config.js`) that calls the {@link hammock} function
     with an {@link Activity} object defining the activity.
  * `package.json` - boilerplate
  * `webpack.config.js` - boilerplate
- * `assets/Integers/webcontent/evenodd` - Matches path in `main.xml`, only needed for testing locally
-    * `layout.html` - HTML template for question
-    * `questions.json` - Question spec, conforming to {@link QuestionSpec} type
-
-This is the simplest imaginable project; it doesn't do any hints or formatting of output at all.
-
-main.xml
---------
-
-The `main.xml` file for any hammock-based activity needs to contain at least two assets, "layout" and
-"questions". Other assets can be freely added, but the harness expects all assets to have unique names.
-
-``` xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE embed_activity PUBLIC "-//Carnegie Mellon University//DTD Embed 1.1//EN" "http://oli.cmu.edu/dtd/oli-embed-activity_1.0.dtd">
-<embed_activity id="harnessed" width="500" height="300">
-  <title>Harness demo</title>
-  <source>Integers/webcontent/evenodd/activity.js</source>
-  <assets>
-    <asset name="layout">Integers/webcontent/evenodd/layout.html</asset>
-    <asset name="questions">Integers/webcontent/evenodd/questions.json</asset>
-  </assets>
-</embed_activity>
-```
-
-The assets file does much of the declarative specification of the project. We'll look at the `layout.html` and
-`questions.json` files next. They don't need to actually be named `layout.html` and `questions.json`, they
-just need to be `.html` and `.json` assets with the right `asset name`.
-
-layout.html
------------
-
-The `layout.html` file defines a template for receiving student input and displaying hints and feedback. It
-does not include the submission logic.
-
-``` html
-<div>
-  <p id="prompt" />
-  <input type="text" id="blank0" />
-  <p id="feedback0" />
-  <input type="text" id="blank1" />
-  <p id="feedback1" />
-</div>
-```
 
 main.js
 -------
 
-The `main.js` file contains wraps the hammock around the assignment logic. The assignment logic, which in a
-larger project would probably be split into multiple files, explains how to `render` existing student
-responses and feedback onto the layout, how to `read` current student responses from the layout, and how to
-`parse` the student responses into a string for grading.
+The `main.js` file wraps the {@link hammock} function around the {@link Activity} object containing the
+assignment logic. In this example, the assignment logic, which in a larger project would probably be split
+into multiple files, explains how to `render` existing student responses and feedback onto the layout, how to
+`read` current student responses from the layout, and how to `parse` the student responses into a string for
+grading.
 
 ``` js
 const hammock = require("@calculemus/oli-hammock");
@@ -129,26 +85,156 @@ module.exports = hammock.hammock({
 });
 ```
 
-The `render` function changes the contents defined in the `layout` asset, it is the only function that does
-so, and it has to be careful what changes it makes to the layout. This funciton must _always_ produce the same
-display given the same information, regardless of what sequence of `render` calls have happened earlier.
+The {@link Activity.read `read()`} function captures all student response data into a serializable object (in
+this case, an array with two elements). The hammock doesn't care what type of data this is, as long as
+`JSON.parse(JSON.stringify(data))` is structurally the same as `data`.
 
-The `read` function captures all student response data into an array of serializable objects (one per question
-part). The hammock doesn't care what type of data this is, as long as `JSON.parse(JSON.stringify(data))` is
-structurally the same as `data`.
+The {@link Activity.init `init()`} function defines an initial object representing the state of a page with no
+response data. This is called when the assignment is newly-initialized or newly-reset.
 
-The `parse` function is optional; if it is omitted, then the `read` function needs to produce an array of
-_strings_, which will themselves be used as the keys for grading. If there's one `parse` function, it's used
-for all question parts. If there's an array of `parse` functions, then one is used for each question. (See the
-[intmax](https://github.com/calculemuscode/oli-hammock-examples/tree/master/intmax) example project for an
-example.)
+The {@link Activity.render `render()`} function changes the contents defined in the `layout` asset file based
+on the {@link QuestionSpec} it is given. It should be the only function that manipulates the DOM, and it has
+to be careful what changes it makes to the layout. This funciton must _always_ produce the same display given
+the same information, regardless of what sequence of `render` calls have happened earlier.
+
+The {@link Activity.parse `parse()`} function converts the object representating the state of the page into an
+array of strings, which will be used as the keys for grading. In this example, it turns the array of two text
+inputs into an array of two strings, either `"blank"`, `"nan"`, `"neg"`, `"even"` or `"odd"`. We'll see how
+these keys are used later in `questions.json`.
+
+package.json
+------------
+
+The first boilerplate file is `package.json`; we use NPM to install dependencies and run scripts. The `watch`
+script is just for local testing.
+
+``` json
+{
+  "scripts": {
+    "webpack": "webpack",
+    "watch": "webpack-dev-server --progress --colors"
+  },
+  "devDependencies": {
+    "@calculemus/oli-hammock": "^0.3.0",
+    "path": "^0.12.7",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.7"
+  }
+}
+```
+
+Instead of copy-pasting this file, you probably want to start with this `package.json` file:
+
+``` json
+{
+  "scripts": {
+    "webpack": "webpack",
+    "watch": "webpack-dev-server --progress --colors"
+  }
+}
+```
+
+and then run this command to get the latest version of the development dependencies:
+
+```
+npm i @calculemus/oli-hammock path webpack webpack-dev-server --save-dev
+```
+
+webpack.config.js
+-----------------
+
+Webpack is confusing and has too many options, but you should be able to just copy and paste this file. The
+`devServer` part is just for local testing.
+
+``` js
+const path = require("path");
+
+module.exports = {
+    entry: {
+        activity: "./main.js"
+    },
+    output: {
+        filename: "activity.js",
+        libraryTarget: "umd",
+        path: path.resolve(__dirname, "dist")
+    },
+    devServer: {
+        contentBase: [
+            path.join(__dirname),
+            path.join(__dirname, "node_modules/@calculemus/oli-hammock/assets")
+        ]
+    }
+}
+```
+
+Running the command `npm run webpack` will create a file `dist/activity.js` which can be used directly on OLI.
+
+Testing OLI Activities Locally
+==============================
+
+The three files above will allow Webpack to create an OLI activity; however, three other files must be present
+on OLI in order for the assignment to work. If you include those files in your NPM project (or symlink them
+from the OLI repository into your NPM project), you will also be able to run your activity locally with the
+webpack development server.
+
+One `activity.js` file can be connected to multiple support files to create multiple variations on the same
+embedded question type, but the setup described here only allows you to test `activity.js` against a single
+activity.
+
+Here are the files you need:
+
+ * `main.xml` - `<embed-activity/>` specification file, maybe should be a symlink to
+   `$OLI_REPO/Integers/x-oli-embed-activity/evenodd.xml`.
+ * `assets/Integers/webcontent/evenodd` - Path after `assets` matches the paths in `main.xml`.
+   testing locally,
+    * `layout.html` - HTML template for question.
+    * `questions.json` - Question spec, conforming to {@link QuestionSpec} type.
+
+main.xml
+--------
+
+The `main.xml` file for any hammock-based activity needs to contain at least two assets, "layout" and
+"questions". Other assets can be added, but the harness expects all assets to have unique names.
+
+``` xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE embed_activity PUBLIC "-//Carnegie Mellon University//DTD Embed 1.1//EN" "http://oli.cmu.edu/dtd/oli-embed-activity_1.0.dtd">
+<embed_activity id="harnessed" width="500" height="300">
+  <title>Harness demo</title>
+  <source>Integers/webcontent/evenodd/activity.js</source>
+  <assets>
+    <asset name="layout">Integers/webcontent/evenodd/layout.html</asset>
+    <asset name="questions">Integers/webcontent/evenodd/questions.json</asset>
+  </assets>
+</embed_activity>
+```
+
+The assets file does much of the declarative specification of the project. We'll look at the `layout.html` and
+`questions.json` files next. They don't need to actually be named `layout.html` and `questions.json`, they
+just need to be `.html` and `.json` assets with the right `asset name`.
+
+layout.html
+-----------
+
+The `layout.html` file defines a template for receiving student input and displaying hints and feedback. It
+does not include the SUBMIT and RESET buttons.
+
+``` html
+<div>
+  <p id="prompt" />
+  <input type="text" id="blank0" />
+  <p id="feedback0" />
+  <input type="text" id="blank1" />
+  <p id="feedback1" />
+</div>
+```
 
 questions.json
 --------------
 
 The `questions.json` asset defines how many parts a question has (this must agree with the activity spec's
-`read` function). This file includes most of the grading logic; if there is no `parse` function defined, then
-it includes all of the grading and feedback logic.
+`read` function). This file includes most of the grading logic, and needs to match up to the `parse` function
+defined in the {@link Activity}.
 
 The questions.json file should either be a single {@link QuestionSpec} or a list of QuestionSpec objects.
 
@@ -179,57 +265,14 @@ The questions.json file should either be a single {@link QuestionSpec} or a list
 }
 ```
 
-package.json
-------------
-
-The first boilerplate file is `package.json`; we use NPM to install dependencies and run scripts.
-
-``` json
-{
-  "scripts": {
-    "webpack": "webpack",
-    "watch": "webpack-dev-server --progress --colors"
-  },
-  "devDependencies": {
-    "@calculemus/oli-hammock": "^0.0.3",
-    "path": "^0.12.7",
-    "webpack": "^3.8.1",
-    "webpack-dev-server": "^2.9.4"
-  }
-}
-```
-
-You should probably reinstall the four dependencies rather than copy-pasting this file so you get the latest
-version.
-
-webpack.config.js
------------------
-
-Webpack is confusing and has too many options, but you should be able to just copy and paste this file.
-
-``` js
-const path = require("path");
-
-module.exports = {
-    entry: {
-        activity: "./main.js"
-    },
-    output: {
-        filename: "activity.js",
-        libraryTarget: "umd",
-        path: path.resolve(__dirname, "dist")
-    },
-    devServer: {
-        contentBase: [
-            path.join(__dirname),
-            path.join(__dirname, "node_modules/@calculemus/oli-hammock/assets")
-        ]
-    }
-}
-```
+Testing the activity
+--------------------
 
 With these six files in place, you can run `npm i` and `npm run watch` and then go to http://localhost:8080/
 to interact with the assignment.
+
+Modifying the webpack configuration
+-----------------------------------
 
 If you set up the `assets` directory as a symlink, and you want `npm run webpack` to put the complied file in,
 say, `Integers/webcontent/evenodd/activity.js` so that it can be checked right in to SVN, then you would
