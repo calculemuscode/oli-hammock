@@ -83,9 +83,9 @@ module.exports = hammock.hammock({
 });
 ```
 
-The {@link Activity.read `read()`} function captures all student response data into a serializable object (in
-this case, an array with two elements). The hammock doesn't care what type of data this is, as long as
-`JSON.parse(JSON.stringify(data))` is structurally the same as `data`.
+The {@link Activity.read `read()`} function reads the DOM to capture all student response data into a
+serializable object (in this case, an array with two elements). The hammock doesn't care what type of data
+this is, as long as `JSON.parse(JSON.stringify(data))` is structurally the same as `data`.
 
 The {@link Activity.init `init()`} function defines an initial object representing the state of a page with no
 response data. This is called when the assignment is newly-initialized or newly-reset.
@@ -183,15 +183,17 @@ Here are the files you need:
 
  * `main.xml` - `<embed-activity/>` specification file, maybe should be a symlink to
    `$OLI_REPO/Integers/x-oli-embed-activity/evenodd.xml`.
- * `assets/Integers/webcontent/evenodd` - Path after `assets` matches the paths in `main.xml`.
+ * `assets/Integers/webcontent/evenodd` - Path after `assets` matches the paths in `main.xml`, one of the
+   directories in this chain should maybe be a symlink.
     * `layout.html` - HTML template for question.
     * `questions.json` - Question spec, conforming to {@link QuestionSpec} type.
 
 main.xml
 --------
 
-The `main.xml` file for any hammock-based activity needs to contain at least two assets, "layout" and
-"questions". Other assets can be added, but the harness expects all assets to have unique names.
+The `main.xml` file for any hammock-based activity needs to contain at two assets, `"layout"` and
+`"questions"`. The filenames don't need to actually be named `layout.html` and `questions.json`, they just
+need to be `.html` and `.json` assets with the right `asset name`.
 
 ``` xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -205,10 +207,6 @@ The `main.xml` file for any hammock-based activity needs to contain at least two
   </assets>
 </embed_activity>
 ```
-
-The assets file does much of the declarative specification of the project. We'll look at the `layout.html` and
-`questions.json` files next. They don't need to actually be named `layout.html` and `questions.json`, they
-just need to be `.html` and `.json` assets with the right `asset name`.
 
 layout.html
 -----------
