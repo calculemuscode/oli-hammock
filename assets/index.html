@@ -4,7 +4,7 @@
   </head>
   <body>
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"   integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="   crossorigin="anonymous"></script>
-    <script type="text/javascript" src="http://requirejs.org/docs/release/2.3.5/minified/require.js" charset="utf-8"></script>
+    <script type="text/javascript" src="https://requirejs.org/docs/release/2.3.5/minified/require.js" charset="utf-8"></script>
     <script type="text/javascript" src="./superactivitymock.js"></script>
     <script type="text/javascript">
       $.get("/main.xml", activityData => {
@@ -13,6 +13,17 @@
           });
       });
     </script>
+    <style>
+      body {
+        background-color: powderblue;
+      }
+      #wrapper {
+        margin: 30px;
+        background-color: white;
+      }
+    </style>
+    <div id="wrapper">
     <div id="oli-embed"/>
+    </div>
   </body>
 </html>
