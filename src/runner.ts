@@ -143,6 +143,18 @@ export class Runner<UserDefinedData> {
                     this.currentAttempt,
                     JSON.stringify(this.feedbackArray),
                     () => {
+                        // There are new functions logCorrect, logIncorrect, logHint, logComplete
+                        // We'll need to update a spreadsheet somewhere that maps question+part to skill
+                        /*
+                        for (part in Question) {
+                            const qid = // GET QUESTION INFO FROM SUPERACTIVITY
+                            if (correct) {
+                               logCorrect(qid);
+                            } else {
+                               logIncorrect(qid);
+                            }
+                        }
+                        */
                         this.superActivity.scoreAttempt(
                             "percent",
                             75, // XX TODO FIX
