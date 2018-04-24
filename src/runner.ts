@@ -131,6 +131,14 @@ export class Runner<UserDefinedData> {
         this.userDataArray[this.currentIndex] = this.activity.read();
         this.feedbackArray[this.currentIndex] = this.grade();
 
+        const pointsEarned = this.feedbackArray[this.currentIndex].reduce((total, x) => {
+            if (x === null) return total;
+            return total + x.score;
+        }, 0);
+        const pointsAvailable = this.questionArray[this.currentIndex].parts.reduce((total, x) => {
+            return total + x.score;
+        }, 0);
+
         this.superActivity.writeFileRecord(
             "userdata",
             "application/json",
@@ -145,7 +153,7 @@ export class Runner<UserDefinedData> {
                     () => {
                         this.superActivity.scoreAttempt(
                             "percent",
-                            75, // XX TODO FIX
+                            Math.floor(100 * pointsEarned / pointsAvailable),
                             () => {
                                 this.superActivity.endAttempt(() => {
                                     this.superActivity.startAttempt((response: Element) => {
