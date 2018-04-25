@@ -134,10 +134,13 @@ export class Runner<UserDefinedData> {
         const pointsEarned = this.feedbackArray[this.currentIndex].reduce((total, x) => {
             if (x === null) return total;
             return total + x.score;
-        }, 0);
+        }, 0); /*
+        // For some reason x.score was occastionally undefined, check transformation code?
         const pointsAvailable = this.questionArray[this.currentIndex].parts.reduce((total, x) => {
             return total + x.score;
-        }, 0);
+        }, 0); */
+        // THIS IS BOGUS
+        const percentage = pointsEarned === 0 ? 0 : 100;
 
         this.superActivity.writeFileRecord(
             "userdata",
@@ -153,7 +156,7 @@ export class Runner<UserDefinedData> {
                     () => {
                         this.superActivity.scoreAttempt(
                             "percent",
-                            Math.floor(100 * pointsEarned / pointsAvailable),
+                            percentage,
                             () => {
                                 this.superActivity.endAttempt(() => {
                                     this.superActivity.startAttempt((response: Element) => {
