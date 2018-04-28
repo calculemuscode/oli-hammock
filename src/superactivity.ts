@@ -18,6 +18,7 @@ export interface SuperActivity {
     startAttempt(callback: (response: Element) => void): void;
     sessionData: Element;
     loadFileRecord(recordname: string, attempt: string | number, callback: (content: any) => void): void;
+    isCurrentAttemptCompleted(): boolean;
 }
 
 export interface SuperActivityClient {

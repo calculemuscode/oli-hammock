@@ -51,40 +51,47 @@ export interface FeedbackData {
  * Activity object will get passed to the OLI Hammock in order to build a complete activtiy that can be run
  * inside of OLI.
  *
- * The state of the question is stored in a seralizable object UserDefinedData, containing all the information
- * about the current state of the student's responses to that question. The implementer of the Activity and
- * the Activity's internal code know what this UserDefinedData is, but the OLI Hammock code treats it as an
- * abstract type.
- *
- * The hammock will serialize and deserialize UserDefinedData (despite it being an abstract type, because this
- * is JavaScript and LOL literally nothing matters). Serializing and deserializing UserDefinedData as JSON
- * must leave it the same.
+ * The state of the question is stored in a seralizable (JSON) object {@link UserDefinedData}, containing all
+ * the information about the current state of the student's responses to that question. The implementer of the
+ * Activity and the Activity's internal code know what this UserDefinedData is, but the OLI Hammock code treats 
+ * it as a black box.
  */
 export interface Activity<UserDefinedData> {
     /**
-     * Renders the question state into the template by writing into the DOM.
+     * Renders the question state into the template by writing into the DOM. This is the only function that
+     * should ever modify the DOM. This function should NOT modify the {@link data} object in any way.
      *
      * This must be an idempotent function: calling it twice has to have the same result as calling it
-     * once.
-     *
-     * It must also be a history agnostic function: the visual result must be the same regardless of
+     * once. It must also be a history agnostic function: the visual result must be the same regardless of
      * whether the HTML template is freshly loaded from the assets or whether render() has been called
      * seventy-six times already with wildly different `data`.
+     * 
+     * This basically means that the render method must proactively set EVERY property that could possibly
+     * by modified by the user or by other calls to render.
      */
     render(data: QuestionData<UserDefinedData>): void;
 
     /**
      * Because UserDefinedData is an abstract type, an Activity must be able to generate its initial state in
-     * order to initialize a new (or freshly-reset) Question.
+     * order to initialize a new (or freshly-reset) Question. This function should not read from, or write to,
+     * the DOM.
      *
      * This function is called on freshly-initalized questions and is re-invoked whenever the function is
-     * reset, so it can be used to generate randomized questions. It has to be self contained; in particular,
-     * it _must not access the DOM_ and may be called before (or after) any calls to `render`.
+     * reset, so it can be used to generate randomized questions.
      */
     init(): UserDefinedData;
 
     /**
-     * Reads the question state out of the template by accessing the DOM.
+     * Reads the question state out of the template by accessing the DOM. This function must not modify
+     * the DOM in any way.
+     * 
+     * Best practices suggestion: keep this function (and the {@link UserDefinedData}) as simple as possible.
+     * The work of interpreting the state should be placed in the {@link render} or {@link parse} methods as
+     * much as possible.
+     * 
+     * The alternative practice, which is also fine, is to put much of the work in this function, keeping both 
+     * {@link parse} and {@link render} simple. This will mean that additional data gets stored in the 
+     * {@link UserDefinedData}, where it is simply read out by the other methods.
      */
     read(): UserDefinedData;
 
@@ -94,6 +101,9 @@ export interface Activity<UserDefinedData> {
      *
      * The key `null` indicates that the corresponding Part has not been completed and should not be analyzed
      * to provide {@link FeedbackData FeedbackData}.
+     * 
+     * This funciton must not read from or write to the DOM, and this function is not allowed to modify the
+     * {@link userData} argument in any way.
      */
     parse(userData: UserDefinedData): (string | null)[];
 }

@@ -1,3 +1,5 @@
+// Note RJS April 27, 2018:
+// Need to deprecate QuestionSpec[] as a possibility: Hammock isn't going to be able to support this.
 export type QuestionsSpec = QuestionSpec | QuestionSpec[];
 
 /**
