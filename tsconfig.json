@@ -14,7 +14,6 @@
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "module": "commonjs",
-        "sourceMap": true,
         "types": ["jquery"]
     },
     "include": ["src/**/*.ts"]
