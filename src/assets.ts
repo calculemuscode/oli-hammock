@@ -13,6 +13,7 @@ export function readAssets(webContentFolder: string, activityData: Element): Pro
     $(activityData)
         .find("assets asset")
         .each(function(i, asset) {
+            console.log(asset);
             const name: string = $(asset).attr("name") || "";
             const value: string = $(asset).text();
 
@@ -27,8 +28,11 @@ export function readAssets(webContentFolder: string, activityData: Element): Pro
                 promises.set(
                     name,
                     new Promise(resolve => {
+                        console.log(name);
                         $.get(webContentFolder + value, content => {
                             assets.set(name, content);
+                            console.log(name);
+                            console.log(content);
                             resolve();
                         });
                     })
