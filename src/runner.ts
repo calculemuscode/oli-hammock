@@ -51,21 +51,19 @@ export class Runner<UserDefinedData> {
      * @param question - the activity's metadata (from question.json)
      */
     constructor(superActivity: SuperActivity, activity: Activity<UserDefinedData>, question: QuestionInt) {
-        this.activity = activity;
         this.superActivity = superActivity;
+        this.activity = activity;
+        this.question = question;
+        this.feedback = question.parts.map(() => null);
 
-        if (superActivity.currentAttempt === "none") {
-            throw new Error("Error in superactivity: currentAttempt non-numeric");
-        }
-        // Don't trust superActivity to consistently give us "3" vs. 3
-        this.currentAttempt = parseInt(superActivity.currentAttempt.toString());
-
-        // superActivity's record is only correct immediately after initialization
+        /* The SuperActivity's information about attempt number and status is only correct
+         * immediately after initialization. Therefore, we record this information in the Runner on 
+         * initialization and then maintain it there. */    
+        this.currentAttempt = parseInt(superActivity.currentAttempt.toString()); // Turn "3" and 3.0 to 3.0
         this.completed = superActivity.isCurrentAttemptCompleted();
 
-        this.question = question;
+        /* TODO: I do not like how init() is being called even if the activity is already initialized. */
         this.userData = activity.init();
-        this.feedback = question.parts.map(() => null);
         this.initialized = this.initializeFromSavedData();
     }
 
@@ -85,8 +83,15 @@ export class Runner<UserDefinedData> {
         const savedData = new Map<string, any>();
         const promises = new Map<string, Promise<void>>();
 
+        console.log(this.superActivity.sessionData);
         const sessionData = $(this.superActivity.sessionData).find("storage file_directory file_record");
-        this.log(() => `sessionData is ${sessionData.text}`);
+        if (sessionData.length === 0) {
+
+        } else {
+
+        }
+
+        this.log(() => `sessionData is ${sessionData.text()}`);
         sessionData.each((index, record) => {
             const attempt = parseInt(
                 $(record)
@@ -121,6 +126,7 @@ export class Runner<UserDefinedData> {
             });
         } else {
             console.error(`Runner.readSavedData: Attempt ${this.currentAttempt}, no saved data`);
+            console.error(Object.keys(promises));
             return Promise.resolve();
         }
     }
