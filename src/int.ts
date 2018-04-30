@@ -81,7 +81,7 @@ function validatePart(part: any): PartInt {
     if (part.hasOwnProperty("hints") && !Array.isArray(part.hints)) {
         throw new Error("validatePart: hints not an array");
     }
-    const score: number = part.score;
+    const score: number = part.score ? part.score : 1;
     const match: Map<string, FeedbackInt> = new Map();
     for (let key of Object.keys(part.match)) {
         match.set(key, validateFeedback(part.match[key], score));

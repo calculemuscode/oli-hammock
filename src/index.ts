@@ -1,4 +1,4 @@
-import { QuestionSpec } from "./spec";
-import { hammock } from "./hammock";
-
-export { QuestionSpec, hammock };
+export { QuestionData, PartData, FeedbackData, Activity } from "./activity";
+export { QuestionSpec, PartSpec, FeedbackSpec } from "./spec";
+export { hammock } from "./hammock";
+export { SuperActivityClient } from "./superactivity";
