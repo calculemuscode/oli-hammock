@@ -1,34 +1,117 @@
 import { SuperActivity } from "./superactivity";
 import { Activity, QuestionData, PartData, FeedbackData } from "./activity";
-import { QuestionInt, PartInt } from "./int";
+import { QuestionInt, PartInt, QuestionsInt } from "./int";
 
+/**
+ * The {@link Runner} object is an unfortunate abstraction, mostly created because I don't quite
+ * trust the {@link SuperActivity} to maintain internal data consistency, distinguish strings and
+ * numbers, etc. Also because the {@link SuperActivity} defines a very general interaction protocol, 
+ * and I want to document and enforce a much more rigid protocol for the sake of simplicity. The role
+ * that the Runner plays in the Hammock is therefore similar to the role the SuperActivity plays in
+ * other embedded activities.
+ *
+ * There's no clear rule for what belongs in this class, versus what belongs in the {@link hammock}
+ * function, as this object should be created, and its methods should be used, only from within that
+ * funciton.
+ *
+ * A {@link Runner} object is created by the hammock. The constructor loads all the question's
+ * compiled data, and then the {@link initializeWithSavedData} method loads the runtime data,
+ * figuring out whether this activity was previously initialized.
+ *
+ *  - Freshly initialized: it is Attempt 1, the assessment has never been visited before. The
+ *    {@link SuperActivity} just called {@link startAttempt}.
+ *  - Incomplete: the assessment was started previously, so there is existing {@link UserDefinedData}
+ *    to be read in and used. There may be zero, one, ore more actual grade records for this attempt,
+ *    but none of these attempts have a score of 100%.
+ *  - Complete: the most recent attempt recieved a score of 100%. Activity submission is disabled
+ *    until the RESET button is pushed.
+ */
 export class Runner<UserDefinedData> {
-    private currentIndex: number;
     private currentAttempt: number;
     private activity: Activity<UserDefinedData>;
     private superActivity: SuperActivity;
-    private userDataArray: UserDefinedData[];
-    private feedbackArray: (FeedbackData | null)[][];
-    private questionArray: QuestionInt[];
+    private userData: Promise<UserDefinedData>;
+    private feedback: (FeedbackData | null)[];
+    private question: QuestionInt;
 
-    constructor(
-        activity: Activity<UserDefinedData>,
-        superActivity: SuperActivity,
-        activityData: Element,
-        questionArray: QuestionInt[]
-    ) {
-        this.activity = activity;
+    /**
+     * Construct a Runner object and cause it to begin initializing with saved data.
+     * 
+     * @param superActivity - An initialized {@link SuperActivity}
+     * @param activity - The activity's internal logic
+     * @param questionArray - The activity's metadata (from question.json).
+     */
+    constructor(superActivity: SuperActivity, activity: Activity<UserDefinedData>, question: QuestionInt) {
         this.superActivity = superActivity;
-        if (superActivity.currentAttempt === "none") {
-            setTimeout(() => console.error(`Delayed: ${superActivity.currentAttempt}`), 5000);
-            throw new Error("Error in superactivity: currentAttempt non-numeric");
-        }
-        this.currentAttempt = parseInt(superActivity.currentAttempt.toString());
+        this.activity = activity;
+        this.question = question;
 
-        this.currentIndex = 0;
-        this.questionArray = questionArray;
-        this.userDataArray = questionArray.map(() => activity.init());
-        this.feedbackArray = questionArray.map(question => question.parts.map(() => null));
+        /** 
+         * The superActivity's information about attempt number and status is only correct immediately
+         * after initialization. Therefore, we record this information in the Runner on initialization,
+         * and maintain it there.
+         */
+        this.currentAttempt = parseInt(superActivity.currentAttempt.toString()); // Turn "3" and 3.0 to 3.0
+
+        /**
+         * We have to read the program state to find out if we're using stored user data, or initializing
+         * new user data. FIRST, parse the file records into a temporary data structure.
+         */
+        const fileRecords: Map<number, Set<string>> = new Map();
+        $(this.superActivity.sessionData)
+            .find("storage file_directory file_record")
+            .each((index, record) => {
+                const attempt = parseInt($(record).find("record_context").attr("attempt") || "-1");
+                const filename = $(record).attr("file_name") || "undefined";
+                const records = fileRecords.get(attempt);
+                if (records !== undefined) {
+                    records.add(filename);
+                } else {
+                    fileRecords.set(attempt, new Set([filename]));
+                }
+            });
+        const previousRecords = fileRecords.get(this.currentAttempt - 1);
+        const currentRecords = fileRecords.get(this.currentAttempt);
+    
+        /** 
+         * Look for the userData in either this attempt or the previous attempt.
+         */
+        const userDataAttempt = 
+            currentRecords !== undefined && currentRecords.has("userdata") ? this.currentAttempt : 
+            previousRecords !== undefined && previousRecords.has("userdata") ? this.currentAttempt - 1 : null;
+        if (userDataAttempt === null) {
+            const userData = activity.init();
+            this.userData = new Promise((resolve) => {
+                this.superActivity.writeFileRecord(
+                    "userdata",
+                    "application/json",
+                    this.currentAttempt,
+                    JSON.stringify(userData),
+                    () => {
+                    });
+
+
+
+
+                    resolve(userData);
+            })
+        }
+
+        if (currentRecords === undefined || !currentRecords.has()) {
+            /**
+             * There is no 
+             */
+            this.userData = new Promise((resolve) => {
+                const data = activity.init();
+
+            })
+        } else {
+
+        }
+        /**
+         * 
+         */
+        this.userData = 
     }
 
     private constructQuestionData(): QuestionData<UserDefinedData> {

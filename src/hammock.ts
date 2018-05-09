@@ -34,31 +34,29 @@ export function hammock<UserData>(activity: Activity<UserData>): SuperActivityCl
                 initializeHTML(assets);
                 const questions = validateQuestions(assets.get("questions"));
                 const runner = new Runner<UserData>(activity, superActivity, activityData, questions);
-                runner.readSavedData().then(() => {
-                    $("#oli-embed").append(
-                        $("<button/>", {
-                            class: "btn btn-primary btn-sm",
-                            text: "SUBMIT",
-                            click: () => {
-                                runner.submit();
-                                runner.render();
-                            }
-                        })
-                    );
 
-                    $("#oli-embed").append(
-                        $("<button/>", {
-                            class: "btn btn-primary btn-sm",
-                            text: "RESET",
-                            click: () => {
-                                runner.reset();
-                                runner.render();
-                            }
-                        })
-                    );
+                // Add interaction buttons
+                $("#oli-embed").append(
+                    $("<button/>", {
+                        class: "btn btn-primary btn-sm",
+                        text: "SUBMIT",
+                        click: () => {
+                            runner.submit().then(() => runner.render());
+                        }
+                    })
+                );
 
-                    runner.render();
-                });
+                $("#oli-embed").append(
+                    $("<button/>", {
+                        class: "btn btn-primary btn-sm",
+                        text: "RESET",
+                        click: () => {
+                            runner.reset().then(() => runner.render());
+                        }
+                    })
+                );
+
+                runner.render();
             });
         }
     };

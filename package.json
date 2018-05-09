@@ -32,5 +32,8 @@
     "prettier": {
         "printWidth": 110,
         "tabWidth": 4
+    },
+    "dependencies": {
+        "immutable": "^3.8.2"
     }
 }
