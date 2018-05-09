@@ -3,19 +3,17 @@
         "target": "es6",
         "moduleResolution": "node",
         "declaration": true,
-        "sourceMap": true,
         "outDir": "lib",
-        "strict": true,
-        "noImplicitAny": true,
-        "noImplicitThis": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": true,
-        "strictNullChecks": true,
-        "allowUnreachableCode": false,
-        "allowUnusedLabels": false,
         "module": "commonjs",
         "sourceMap": true,
-        "types": ["jquery"]
+
+        "types": ["jquery"],
+
+        "strict": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true
     },
     "include": ["src/**/*.ts"]
 }
