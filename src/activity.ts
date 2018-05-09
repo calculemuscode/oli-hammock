@@ -51,40 +51,44 @@ export interface FeedbackData {
  * Activity object will get passed to the OLI Hammock in order to build a complete activtiy that can be run
  * inside of OLI.
  *
- * The state of the question is stored in a seralizable object UserDefinedData, containing all the information
- * about the current state of the student's responses to that question. The implementer of the Activity and
- * the Activity's internal code know what this UserDefinedData is, but the OLI Hammock code treats it as an
- * abstract type.
- *
- * The hammock will serialize and deserialize UserDefinedData (despite it being an abstract type, because this
- * is JavaScript and LOL literally nothing matters). Serializing and deserializing UserDefinedData as JSON
- * must leave it the same.
+ * The state of the question is stored in a seralizable object {@link UserDefinedData}, containing all the
+ * information about the current state of the student's responses to that question. The implementer of the
+ * Activity and the Activity's internal code know what this UserDefinedData is, but the OLI Hammock code 
+ * treats it as an abstract type.
  */
 export interface Activity<UserDefinedData> {
     /**
-     * Renders the question state into the template by writing into the DOM.
+     * Renders the question state into the template by writing into the DOM. This is the only function that
+     * should ever modify the DOM. This function should NOT modify the {@link data} object in any way.
      *
      * This must be an idempotent function: calling it twice has to have the same result as calling it
-     * once.
-     *
-     * It must also be a history agnostic function: the visual result must be the same regardless of
+     * once. It must also be a history agnostic function: the visual result must be the same regardless of
      * whether the HTML template is freshly loaded from the assets or whether render() has been called
      * seventy-six times already with wildly different `data`.
+     * 
+     * This basically means that the render method must proactively set EVERY property that could possibly
+     * be modified by the user or by other calls to `render()`.
      */
     render(data: QuestionData<UserDefinedData>): void;
 
     /**
      * Because UserDefinedData is an abstract type, an Activity must be able to generate its initial state in
-     * order to initialize a new (or freshly-reset) Question.
+     * order to initialize a new (or freshly-reset) Question. This function should not read from, or write to,
+     * the DOM. (Conceptually, it might as well not even be run in the browser.)
      *
      * This function is called on freshly-initalized questions and is re-invoked whenever the function is
-     * reset, so it can be used to generate randomized questions. It has to be self contained; in particular,
-     * it _must not access the DOM_ and may be called before (or after) any calls to `render`.
+     * reset, so it can be used to generate randomized questions.
      */
     init(): UserDefinedData;
 
     /**
-     * Reads the question state out of the template by accessing the DOM.
+     * Reads the question state out of the template by accessing the DOM. This function must not modify the
+     * DOM in any way.
+     * 
+     * It is considered best practices to keep this function (and the {@link UserDefinedData}) as simple as
+     * possible. The work of interpreting the state should be placed in the {@link render} or {@link parse}
+     * methods as much as possible, even if that means both methods call the same functions to re-compute
+     * data.
      */
     read(): UserDefinedData;
 
