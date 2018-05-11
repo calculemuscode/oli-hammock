@@ -78,12 +78,19 @@ export class Runner<UserDefinedData> {
         const previousRecords = fileRecords.get(this.currentAttempt - 1);
         const currentRecords = fileRecords.get(this.currentAttempt);
     
+        /**
+         * SECOND, if there's no "state" record, start from scratch. Otherwise, load it.
+         */
         if (currentRecords === undefined || !currentRecords.has("state")) {
             this.stored = Promise.resolve({ state: activity.init(), feedback: question.parts.map(x => null)})
         } else {
             const state: Promise<UserDefinedData> = new Promise((resolve) => {
                 this.superActivity.loadFileRecord("state", this.currentAttempt, resolve);
             });
+
+            /**
+             * THIRD, if there's a "feedback" record in the 
+             */
             let feedback: Promise<(FeedbackData | null)[]>;
             if (previousRecords !== undefined && previousRecords.has("feedback")) {
                 feedback = new Promise((resolve) => {
