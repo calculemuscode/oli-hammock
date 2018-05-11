@@ -1,6 +1,6 @@
 import { SuperActivity } from "./superactivity";
 import { Activity, QuestionData, PartData, FeedbackData } from "./activity";
-import { QuestionInt, PartInt, QuestionsInt } from "./int";
+import { QuestionInt, PartInt } from "./int";
 
 /**
  * The {@link Runner} object is an unfortunate abstraction, mostly created because I don't quite
@@ -30,9 +30,12 @@ export class Runner<UserDefinedData> {
     private currentAttempt: number;
     private activity: Activity<UserDefinedData>;
     private superActivity: SuperActivity;
-    private userData: Promise<UserDefinedData>;
-    private feedback: (FeedbackData | null)[];
     private question: QuestionInt;
+
+    /**
+     * A promise is used to avoid initializing with dummy data unnecessarily.
+     */
+    private stored: Promise<{ state: UserDefinedData, feedback: (FeedbackData | null)[] }>;
 
     /**
      * Construct a Runner object and cause it to begin initializing with saved data.
@@ -64,6 +67,8 @@ export class Runner<UserDefinedData> {
                 const attempt = parseInt($(record).find("record_context").attr("attempt") || "-1");
                 const filename = $(record).attr("file_name") || "undefined";
                 const records = fileRecords.get(attempt);
+                console.log(`Attempt ${attempt}, filename ${filename}`);
+                console.log(record);
                 if (records !== undefined) {
                     records.add(filename);
                 } else {
@@ -73,136 +78,64 @@ export class Runner<UserDefinedData> {
         const previousRecords = fileRecords.get(this.currentAttempt - 1);
         const currentRecords = fileRecords.get(this.currentAttempt);
     
-        /** 
-         * Look for the userData in either this attempt or the previous attempt.
-         */
-        const userDataAttempt = 
-            currentRecords !== undefined && currentRecords.has("userdata") ? this.currentAttempt : 
-            previousRecords !== undefined && previousRecords.has("userdata") ? this.currentAttempt - 1 : null;
-        if (userDataAttempt === null) {
-            const userData = activity.init();
-            this.userData = new Promise((resolve) => {
-                this.superActivity.writeFileRecord(
-                    "userdata",
-                    "application/json",
-                    this.currentAttempt,
-                    JSON.stringify(userData),
-                    () => {
-                    });
-
-
-
-
-                    resolve(userData);
-            })
-        }
-
-        if (currentRecords === undefined || !currentRecords.has()) {
-            /**
-             * There is no 
-             */
-            this.userData = new Promise((resolve) => {
-                const data = activity.init();
-
-            })
+        if (currentRecords === undefined || !currentRecords.has("state")) {
+            this.stored = Promise.resolve({ state: activity.init(), feedback: question.parts.map(x => null)})
         } else {
-
-        }
-        /**
-         * 
-         */
-        this.userData = 
-    }
-
-    private constructQuestionData(): QuestionData<UserDefinedData> {
-        const questionData: QuestionData<UserDefinedData> = {
-            state: this.userDataArray[this.currentIndex],
-            parts: this.questionArray[this.currentIndex].parts.map((part: PartInt, i): PartData => {
-                const partData: PartData = {};
-                const thisFeedback = this.feedbackArray[this.currentIndex][i];
-                if (part.prompt) partData.prompt = part.prompt;
-                if (part.hints) partData.hints = part.hints.map(x => x); // Deep copy
-                if (thisFeedback) partData.feedback = thisFeedback;
-                return partData;
-            })
-        };
-
-        if (this.questionArray[this.currentIndex].prompt) {
-            questionData.prompt = this.questionArray[this.currentIndex].prompt;
-        }
-        if (this.questionArray[this.currentIndex].hints) {
-            questionData.hints = this.questionArray[this.currentIndex].hints;
-        }
-
-        return questionData;
-    }
-
-    render(): void {
-        this.activity.render(this.constructQuestionData());
-    }
-
-    readSavedData(): Promise<void> {
-        if (this.currentAttempt === 1) return Promise.resolve();
-
-        const savedData = new Map<string, any>();
-        const promises = new Map<string, Promise<void>>();
-
-        $(this.superActivity.sessionData)
-            .find("storage file_directory file_record")
-            .each((index, record) => {
-                const attempt = parseInt(
-                    $(record)
-                        .find("record_context")
-                        .attr("attempt") || "-1"
-                );
-                const filename = $(record).attr("file_name") || "undefined";
-                if (attempt === this.currentAttempt - 1) {
-                    promises.set(
-                        filename,
-                        new Promise(resolve => {
-                            this.superActivity.loadFileRecord(
-                                filename,
-                                this.currentAttempt - 1,
-                                (result: any) => {
-                                    savedData.set(filename, result);
-                                    resolve();
-                                }
-                            );
-                        })
-                    );
-                }
+            const state: Promise<UserDefinedData> = new Promise((resolve) => {
+                this.superActivity.loadFileRecord("state", this.currentAttempt, resolve);
             });
-
-        if (promises.has("reset")) {
-            return Promise.resolve();
-        } else if (promises.has("userdata") && promises.has("feedback")) {
-            return Promise.all(promises.values()).then(() => {
-                this.userDataArray = savedData.get("userdata");
-                this.feedbackArray = savedData.get("feedback");
-            });
-        } else {
-            console.error(`Runner.readSavedData: Attempt ${this.currentAttempt}, no saved data`);
-            return Promise.resolve();
+            let feedback: Promise<(FeedbackData | null)[]>;
+            if (previousRecords !== undefined && previousRecords.has("feedback")) {
+                feedback = new Promise((resolve) => {
+                    this.superActivity.loadFileRecord("feedback", this.currentAttempt - 1, resolve)
+                })
+            } else {
+                feedback = Promise.resolve(question.parts.map(x => null));
+            }
+            this.stored = Promise.all([state, feedback]).then(([state, feedback]) => ({
+                state: state,
+                feedback: feedback
+            }));
         }
     }
 
-    private grade(): (FeedbackData | null)[] {
-        return this.activity.parse(this.userDataArray[this.currentIndex]).map((response, i) => {
+    render(): Promise<void> {
+        return this.stored.then(({state, feedback}) => {
+            const questionData: QuestionData<UserDefinedData> = {
+                state: state,
+                parts: this.question.parts.map((part: PartInt, i): PartData => {
+                    const partData: PartData = {};
+                    const thisFeedback = feedback[i];
+                    if (part.prompt) partData.prompt = part.prompt;
+                    if (part.hints) partData.hints = part.hints.map(x => x); // Deep(er) copy
+                    if (thisFeedback) partData.feedback = thisFeedback;
+                    return partData;
+                })
+            };
+
+            if (this.question.prompt) questionData.prompt = this.question.prompt;
+            if (this.question.hints) questionData.hints = this.question.hints;
+            return this.activity.render(questionData);
+        })
+    }
+
+    private grade(state: UserDefinedData): (FeedbackData | null)[] {
+        return this.activity.parse(state).map((response, i) => {
             if (!response) return null;
 
-            const match = this.questionArray[this.currentIndex].parts[i].match.get(response);
+            const match = this.question.parts[i].match.get(response);
             if (!match) {
-                const nomatch = this.questionArray[this.currentIndex].parts[i].nomatch;
+                const nomatch = this.question.parts[i].nomatch;
                 if (!nomatch) throw new Error(`grade: question ${i} has no match for ${response}`);
 
                 return {
-                    correct: nomatch.score === this.questionArray[this.currentIndex].parts[i].score,
+                    correct: nomatch.score === this.question.parts[i].score,
                     score: nomatch.score,
                     message: nomatch.message
                 };
             } else {
                 return {
-                    correct: match.score === this.questionArray[this.currentIndex].parts[i].score,
+                    correct: match.score === this.question.parts[i].score,
                     score: match.score,
                     message: match.message
                 };
@@ -210,76 +143,59 @@ export class Runner<UserDefinedData> {
         });
     }
 
-    submit(): void {
-        this.userDataArray[this.currentIndex] = this.activity.read();
-        this.feedbackArray[this.currentIndex] = this.grade();
-
-        const pointsEarned = this.feedbackArray[this.currentIndex].reduce((total, x) => {
-            if (x === null) return total;
-            return total + x.score;
-        }, 0); /*
-        // For some reason x.score was occastionally undefined, check transformation code?
-        const pointsAvailable = this.questionArray[this.currentIndex].parts.reduce((total, x) => {
-            return total + x.score;
-        }, 0); */
-        // THIS IS BOGUS
-        const percentage = pointsEarned === 0 ? 0 : 100;
-
-        this.superActivity.writeFileRecord(
-            "userdata",
-            "application/json",
-            this.currentAttempt,
-            JSON.stringify(this.userDataArray),
-            () => {
-                this.superActivity.writeFileRecord(
-                    "feedback",
-                    "application/json",
-                    this.currentAttempt,
-                    JSON.stringify(this.feedbackArray),
-                    () => {
-                        this.superActivity.scoreAttempt(
-                            "percent",
-                            percentage,
-                            () => {
-                                this.superActivity.endAttempt(() => {
-                                    this.superActivity.startAttempt((response: Element) => {
-                                        const newAttempt = parseInt(
-                                            $(response)
-                                                .find("attempt_history")
-                                                .attr("current_attempt") || "-1"
-                                        );
-                                        this.currentAttempt = newAttempt;
-                                    });
-                                });
-                            }
-                        );
-                    }
-                );
-            }
-        );
+    private write<A>(name: string, x: A): Promise<A> {
+        return new Promise((resolve) => {
+            this.superActivity.writeFileRecord(name, "application/json", this.currentAttempt, JSON.stringify(x), () => resolve(x));
+        });
     }
 
-    reset(): void {
-        this.userDataArray[this.currentIndex] = this.activity.init();
-        this.feedbackArray[this.currentIndex] = this.questionArray[this.currentIndex].parts.map(() => null);
+    private restart(): Promise<void> {
+        return new Promise((resolve) => { this.superActivity.endAttempt(resolve); })
+            .then(() => new Promise<Element>((resolve) => { this.superActivity.startAttempt(resolve); }))
+            .then((response) => {
+                const reportedNewAttempt = $(response).find("attempt_history").attr("current_attempt");
+                const newAttempt = parseInt(reportedNewAttempt || "-1");
+                this.currentAttempt = newAttempt;                
+            })
+    }
 
-        this.superActivity.writeFileRecord(
-            "reset",
-            "application/json",
-            this.currentAttempt,
-            JSON.stringify(this.userDataArray),
-            () => {
-                this.superActivity.endAttempt(() => {
-                    this.superActivity.startAttempt((response: Element) => {
-                        const newAttempt = parseInt(
-                            $(response)
-                                .find("attempt_history")
-                                .attr("current_attempt") || "-1"
-                        );
-                        this.currentAttempt = newAttempt;
-                    });
-                });
-            }
-        );
+    submit(): Promise<void> {
+        this.stored = this.stored.then(() => {
+            const state = this.activity.read();
+            return { state: state, feedback: this.grade(state) };
+        });
+        return this.stored.then(({state, feedback}) => {
+            const pointsEarned = feedback.reduce((total, x) => {
+                if (x === null) return total;
+                return total + x.score;
+            }, 0);
+            const pointsAvailable = this.question.parts.reduce((total, x) => total + x.score, 0);
+            const percentage = Math.floor(100 * pointsEarned / pointsAvailable);
+
+            return this.write("state", state)
+                .then(() => new Promise((resolve) => {
+                    this.superActivity.scoreAttempt("percent" , percentage, resolve);
+                })).then(() => this.write("feedback", feedback))
+                .then(() => this.restart())
+                .then(() => this.write("state", state))
+                .then(() => {});
+            });
+        }
+
+    reset(): Promise<void> {
+        this.stored = this.stored.then(({feedback}) => {
+            const state = this.activity.read();
+            return { state: state, feedback: feedback };
+        });
+        this.stored = this.stored.then(({state, feedback}) => {
+            return this.write("reset", state)
+                .then(() => this.restart())
+                .then(() => {
+                    const newState = this.activity.init();
+                    return this.write("state", newState);
+                })
+                .then((newState) => ({state: newState, feedback: this.question.parts.map(() => null)}));
+        });
+        return this.stored.then(() => {});
     }
 }
