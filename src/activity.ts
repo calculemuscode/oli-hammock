@@ -53,7 +53,7 @@ export interface FeedbackData {
  *
  * The state of the question is stored in a seralizable object {@link UserDefinedData}, containing all the
  * information about the current state of the student's responses to that question. The implementer of the
- * Activity and the Activity's internal code know what this UserDefinedData is, but the OLI Hammock code 
+ * Activity and the Activity's internal code know what this UserDefinedData is, but the OLI Hammock code
  * treats it as an abstract type.
  */
 export interface Activity<UserDefinedData> {
@@ -65,7 +65,7 @@ export interface Activity<UserDefinedData> {
      * once. It must also be a history agnostic function: the visual result must be the same regardless of
      * whether the HTML template is freshly loaded from the assets or whether render() has been called
      * seventy-six times already with wildly different `data`.
-     * 
+     *
      * This basically means that the render method must proactively set EVERY property that could possibly
      * be modified by the user or by other calls to `render()`.
      */
@@ -84,7 +84,7 @@ export interface Activity<UserDefinedData> {
     /**
      * Reads the question state out of the template by accessing the DOM. This function must not modify the
      * DOM in any way.
-     * 
+     *
      * It is considered best practices to keep this function (and the {@link UserDefinedData}) as simple as
      * possible. The work of interpreting the state should be placed in the {@link render} or {@link parse}
      * methods as much as possible, even if that means both methods call the same functions to re-compute
