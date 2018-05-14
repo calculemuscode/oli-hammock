@@ -5,6 +5,9 @@
         "A harness for simplifying custom embedded activity creation in Carnegie Mellon's OLI system",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
+    "dependencies": {
+        "immutable": "^3.8.2"
+    },
     "devDependencies": {
         "@types/jquery": "^3.3.1",
         "prettier": "^1.12.1",
@@ -33,8 +36,5 @@
     "prettier": {
         "printWidth": 110,
         "tabWidth": 4
-    },
-    "dependencies": {
-        "immutable": "^3.8.2"
     }
 }
