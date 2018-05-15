@@ -1,6 +1,6 @@
 {
     "name": "@calculemus/oli-hammock",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "description":
         "A harness for simplifying custom embedded activity creation in Carnegie Mellon's OLI system",
     "main": "lib/index.js",

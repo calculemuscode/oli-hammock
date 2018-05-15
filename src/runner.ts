@@ -1,6 +1,7 @@
 import { SuperActivity } from "./superactivity";
 import { Activity, QuestionData, PartData, FeedbackData } from "./activity";
 import { QuestionInt, PartInt } from "./int";
+import { resizeOLIFrame } from "./resizeframe";
 
 /**
  * The {@link Runner} object is an unfortunate abstraction, mostly created because I don't quite
@@ -132,22 +133,7 @@ export class Runner<UserDefinedData> {
 
             // Re-render display
             this.activity.render(questionData);
-
-            // Then resize frame based on the offsetHeight of the content
-            // https://stackoverflow.com/questions/22675126/what-is-offsetheight-clientheight-scrollheight
-            const targetWindow = window.frameElement ? window.frameElement.getAttribute("data-activityguid") : null;
-            if (targetWindow !== null) {
-                // Looks like we're running inside the OLI environment, where resizing is needed
-                const selection = Array.from(window.parent.document.getElementsByTagName("iframe"));
-                console.log(targetWindow);
-                selection.forEach(iframe => {
-                    console.log(iframe);
-                    console.log(iframe.getAttribute("data-activityguid"));
-                    if (iframe.getAttribute("data-activityguid") === targetWindow) {
-                        iframe.height = `${document.body.offsetHeight}px`;
-                    }
-                });
-            }
+            resizeOLIFrame();
         });
     }
 
