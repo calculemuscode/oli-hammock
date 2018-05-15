@@ -3,3 +3,4 @@ node_modules
 lib
 typedoc
 .#package.json
+src/test.js
