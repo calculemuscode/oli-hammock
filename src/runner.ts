@@ -147,7 +147,7 @@ export class Runner<UserDefinedData> {
                         iframe.height = `${document.body.offsetHeight}px`;
                     }
                 });
-            } else { console.log("EYY"); }
+            }
         });
     }
 
