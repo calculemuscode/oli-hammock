@@ -132,20 +132,20 @@ export class Runner<UserDefinedData> {
 
             // Re-render display
             this.activity.render(questionData);
-            
+
             // Then resize frame
             const targetWindow = window.frameElement.getAttribute("data-activityguid");
             if (targetWindow !== null) {
                 // Okay, looks like we're running inside OLI, in an iframe
-                const selection = Array.from(window.parent.document.getElementsByTagName('iframe'));
+                const selection = Array.from(window.parent.document.getElementsByTagName("iframe"));
                 console.log(targetWindow);
-                selection.forEach((iframe) => {
+                selection.forEach(iframe => {
                     console.log(iframe);
                     console.log(iframe.getAttribute("data-activityguid"));
                     if (iframe.getAttribute("data-activityguid") === targetWindow) {
                         iframe.height = `${document.body.offsetHeight}px`;
                     }
-                })
+                });
             }
         });
     }
