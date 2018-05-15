@@ -133,10 +133,11 @@ export class Runner<UserDefinedData> {
             // Re-render display
             this.activity.render(questionData);
 
-            // Then resize frame
-            const targetWindow = window.frameElement.getAttribute("data-activityguid");
+            // Then resize frame based on the offsetHeight of the content
+            // https://stackoverflow.com/questions/22675126/what-is-offsetheight-clientheight-scrollheight
+            const targetWindow = window.frameElement ? window.frameElement.getAttribute("data-activityguid") : null;
             if (targetWindow !== null) {
-                // Okay, looks like we're running inside OLI, in an iframe
+                // Looks like we're running inside the OLI environment, where resizing is needed
                 const selection = Array.from(window.parent.document.getElementsByTagName("iframe"));
                 console.log(targetWindow);
                 selection.forEach(iframe => {
@@ -146,7 +147,7 @@ export class Runner<UserDefinedData> {
                         iframe.height = `${document.body.offsetHeight}px`;
                     }
                 });
-            }
+            } else { console.log("EYY"); }
         });
     }
 
