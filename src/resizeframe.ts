@@ -7,10 +7,9 @@ export function resizeOLIFrame() {
     // https://stackoverflow.com/questions/22675126/what-is-offsetheight-clientheight-scrollheight
     const targetWindow = window.frameElement ? window.frameElement.getAttribute("data-activityguid") : null;
     if (targetWindow !== null) {
-
-        console.log(`Offset: ${document.body.offsetHeight}`)
-        console.log(`Client: ${document.body.clientHeight}`)
-        console.log(`Scroll: ${document.body.scrollHeight}`)
+        console.log(`Offset: ${document.body.offsetHeight}`);
+        console.log(`Client: ${document.body.clientHeight}`);
+        console.log(`Scroll: ${document.body.scrollHeight}`);
 
         // Looks like we're running inside the OLI environment, where resizing is needed
         const selection = Array.from(window.parent.document.getElementsByTagName("iframe"));

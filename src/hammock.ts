@@ -34,7 +34,7 @@ export function hammock<UserData>(activity: Activity<UserData>): SuperActivityCl
                 initializeHTML(assets);
                 const questions = validateQuestions(assets.get("questions"));
                 const runner = new Runner<UserData>(superActivity, activity, questions[0]);
-                
+
                 // Add interaction buttons
                 $("#oli-embed").append(
                     $("<button/>", {
