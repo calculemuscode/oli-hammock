@@ -1,0 +1,19 @@
+script:
+
+
+deploy:
+  provider: surge
+  project: ./typedoc/
+  domain: oli-hammock.surge.sh
+  on:
+    tags: true
+  skip_cleanup: true
+
+deploy:
+  provider: npm
+  email: rob@calculem.us
+  api_key:
+    secure: ZKm5/rKMNsXXiV4jcEPg8vtM7xBCT9Q5c72nGsBDfg4kItIQf/J5hXqmTFXsj1NAMNemmiZrUBvOv+VjEYWcrmNqUvg9p0enhOi9UqQEAJ+ZXlyo/qz8FCuzE8gjxTYz1UA3gpAXAILLUqdIP3QQiOcpYZHHoRW+3fNaosls86QJXs7+wGAOa+87YJvMbFKn8VEZt76x7RKxMRDCskWgtrHPm4kzCCKXzym/s/uFHiHPbNJqzarK8FdBEn1jfhZ0/fWn3nQheNy23KdHomwn9zO0Gf7kqysXqpf8LlWUH/MMmNAfa1WCY2ID6t0vadDC7KcxhnJAb8gfn2N4utWfM9ndRCSVvR6YO24kvaAZ7H2yWxiW0KsHpT7pqU3YMUJZBC3mlWEBOXEoYZtfeyUvQuuoeYjK+d5XvJNvyCWXUWJn3px+Xbrq8AEZzJ3r/e/qkk8UToj16t8GtZdoJ8d4F4Kr7WR0ILXgWU1kpr23GGXjxxh7TKc4g/sguu9OkjCM6g3yhT9XAxEPJLijrIyWjsLtsnNI1WeOBDUNRTVx15YfIyM4LmEuqfTzZ3CbKDT2+gRHww7DHUX54iBQAViJr/2RbgszKRiFmD3g+05I9il5e6C+dX1veA1Q3dTUYyb9lYxlIu7bbZDxTvGR4fK3juql/nY/nCs+QaJihV4pu8A=
+  on:
+    tags: true
+  skip_cleanup: true

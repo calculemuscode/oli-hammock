@@ -53,13 +53,15 @@ function validateQuestion(question: any): QuestionInt {
 
     if (question.prompt) result.prompt = question.prompt;
     if (question.hints) {
-        result.hints = question.hints.map((hint: any): string => {
-            if ("string" !== typeof hint) {
-                throw new Error("validateQuestion: hint not a string");
-            } else {
-                return hint;
+        result.hints = question.hints.map(
+            (hint: any): string => {
+                if ("string" !== typeof hint) {
+                    throw new Error("validateQuestion: hint not a string");
+                } else {
+                    return hint;
+                }
             }
-        });
+        );
     }
 
     return result;
@@ -95,13 +97,15 @@ function validatePart(part: any): PartInt {
     if (part.prompt) result.prompt = part.prompt;
     if (part.nomatch) result.nomatch = validateFeedback(part.nomatch, score);
     if (part.hints) {
-        result.hints = part.hints.map((hint: any): string => {
-            if ("string" !== typeof hint) {
-                throw new Error("validatePart: hint not a string");
-            } else {
-                return hint;
+        result.hints = part.hints.map(
+            (hint: any): string => {
+                if ("string" !== typeof hint) {
+                    throw new Error("validatePart: hint not a string");
+                } else {
+                    return hint;
+                }
             }
-        });
+        );
     }
 
     return result;

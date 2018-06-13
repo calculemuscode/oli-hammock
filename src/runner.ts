@@ -2,6 +2,7 @@ import { SuperActivity } from "./superactivity";
 import { Activity, QuestionData, PartData, FeedbackData } from "./activity";
 import { QuestionInt, PartInt } from "./int";
 import { resizeOLIFrame } from "./resizeframe";
+import * as mustache from "mustache";
 
 /**
  * The {@link Runner} object is an unfortunate abstraction, mostly created because I don't quite
@@ -118,14 +119,16 @@ export class Runner<UserDefinedData> {
         return this.stored.then(({ state, feedback }) => {
             const questionData: QuestionData<UserDefinedData> = {
                 state: state,
-                parts: this.question.parts.map((part: PartInt, i): PartData => {
-                    const partData: PartData = {};
-                    const thisFeedback = feedback[i];
-                    if (part.prompt) partData.prompt = part.prompt;
-                    if (part.hints) partData.hints = part.hints.map(x => x); // Deep(er) copy
-                    if (thisFeedback) partData.feedback = thisFeedback;
-                    return partData;
-                })
+                parts: this.question.parts.map(
+                    (part: PartInt, i): PartData => {
+                        const partData: PartData = {};
+                        const thisFeedback = feedback[i];
+                        if (part.prompt) partData.prompt = part.prompt;
+                        if (part.hints) partData.hints = part.hints.map(x => x); // Deep(er) copy
+                        if (thisFeedback) partData.feedback = thisFeedback;
+                        return partData;
+                    }
+                )
             };
 
             if (this.question.prompt) questionData.prompt = this.question.prompt;
@@ -140,8 +143,9 @@ export class Runner<UserDefinedData> {
     private grade(state: UserDefinedData): (FeedbackData | null)[] {
         return this.activity.parse(state).map((response, i) => {
             if (!response) return null;
+            const view = typeof response === "string" ? { key: response } : response;
+            const match = this.question.parts[i].match.get(view.key);
 
-            const match = this.question.parts[i].match.get(response);
             if (!match) {
                 const nomatch = this.question.parts[i].nomatch;
                 if (!nomatch) throw new Error(`grade: question ${i} has no match for ${response}`);
@@ -149,13 +153,13 @@ export class Runner<UserDefinedData> {
                 return {
                     correct: nomatch.score === this.question.parts[i].score,
                     score: nomatch.score,
-                    message: nomatch.message
+                    message: mustache.render(nomatch.message, view)
                 };
             } else {
                 return {
                     correct: match.score === this.question.parts[i].score,
                     score: match.score,
-                    message: match.message
+                    message: mustache.render(match.message, view)
                 };
             }
         });
@@ -203,7 +207,7 @@ export class Runner<UserDefinedData> {
                 return total + x.score;
             }, 0);
             const pointsAvailable = this.question.parts.reduce((total, x) => total + x.score, 0);
-            const percentage = Math.floor(100 * pointsEarned / pointsAvailable);
+            const percentage = Math.floor((100 * pointsEarned) / pointsAvailable);
 
             return this.write("state", state)
                 .then(

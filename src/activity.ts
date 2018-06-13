@@ -99,5 +99,5 @@ export interface Activity<UserDefinedData> {
      * The key `null` indicates that the corresponding Part has not been completed and should not be analyzed
      * to provide {@link FeedbackData FeedbackData}.
      */
-    parse(userData: UserDefinedData): (string | null)[];
+    parse(userData: UserDefinedData): ({ key: string; [tag: string]: string } | string | null)[];
 }
