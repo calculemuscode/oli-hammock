@@ -6,8 +6,7 @@
     "types": "lib/index.d.ts",
     "dependencies": {
         "immutable": "^3.8.2",
-        "mustache": "^2.3.0",
-        "travis": "^0.1.1"
+        "mustache": "^2.3.0"
     },
     "devDependencies": {
         "@types/jquery": "^3.3.2",
