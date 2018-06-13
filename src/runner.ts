@@ -148,7 +148,7 @@ export class Runner<UserDefinedData> {
 
             if (!match) {
                 const nomatch = this.question.parts[i].nomatch;
-                if (!nomatch) throw new Error(`grade: question ${i} has no match for ${response}`);
+                if (!nomatch) throw new Error(`grade: question ${i} has no match for ${view.key}`);
 
                 return {
                     correct: nomatch.score === this.question.parts[i].score,
