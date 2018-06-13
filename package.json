@@ -14,7 +14,8 @@
         "@types/mustache": "^0.8.30",
         "prettier": "^1.13.5",
         "surge": "^0.20.1",
-        "typedoc": "^0.11.1"
+        "typedoc": "^0.11.1",
+        "typescript": "^2.9.2"
     },
     "author": "Calculemus LLC",
     "scripts": {
