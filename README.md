@@ -23,7 +23,8 @@ embedded activity, as far as OLI Superactivity is concerned.
 ```
 
 [![npm version](https://badge.fury.io/js/%40calculemus%2Foli-hammock.svg)](https://badge.fury.io/js/%40calculemus%2Foli-hammock)
-[![Build Status](https://travis-ci.org/calculemuscode/oli-hammock.svg?branch=master)](https://travis-ci.org/calculemuscode/oli-hammock)[![dependencies Status](https://david-dm.org/calculemuscode/oli-hammock/status.svg)](https://david-dm.org/calculemuscode/oli-hammock)
+[![Build Status](https://travis-ci.org/calculemuscode/oli-hammock.svg?branch=master)](https://travis-ci.org/calculemuscode/oli-hammock)
+[![dependencies Status](https://david-dm.org/calculemuscode/oli-hammock/status.svg)](https://david-dm.org/calculemuscode/oli-hammock)
 [![devDependencies Status](https://david-dm.org/calculemuscode/oli-hammock/dev-status.svg)](https://david-dm.org/calculemuscode/oli-hammock?type=dev)
 
 Example project
