@@ -1,5 +1,11 @@
-script:
+language: node_js
 
+node_js:
+  - "node"
+  - "lts/*"
+
+script:
+  - npm run typedoc
 
 deploy:
   provider: surge
