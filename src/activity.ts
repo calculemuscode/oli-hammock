@@ -1,9 +1,9 @@
 /**
  * QuestionData is passed to the embedded {@link Activity Activity's} render() function, giving instructions
  * for rendering the entire question into the template.
- * 
+ *
  * This interface describes the data that that OLI hammock provides to the activities as they are running.
- * The data that is provided in JSON format by the user is a bit less rigid; that data format is described by 
+ * The data that is provided in JSON format by the user is a bit less rigid; that data format is described by
  * the {@link FeedbackSpec} interface.
  */
 export interface QuestionData<UserDefinedData> {
@@ -28,9 +28,9 @@ export interface QuestionData<UserDefinedData> {
 
 /**
  * The results from the grader's analysis of a part are stored in the PartData object.
- * 
+ *
  * This interface describes the data that that OLI hammock provides to the activities as they are running.
- * The data that is provided in JSON format by the user is a bit less rigid; that data format is described by 
+ * The data that is provided in JSON format by the user is a bit less rigid; that data format is described by
  * the {@link PartSpec} interface.
  */
 export interface PartData {
@@ -51,9 +51,9 @@ export interface PartData {
 /**
  * The message associated with a piece of feedback will get interpreted as a Mustache template.
  * See the description of the {@link parse} function for details.
- * 
+ *
  * This interface describes the data that that OLI hammock provides to the activities as they are running.
- * The data that is provided in JSON format by the user is a bit less rigid; that data format is described by 
+ * The data that is provided in JSON format by the user is a bit less rigid; that data format is described by
  * the {@link FeedbackSpec} type.
  */
 
@@ -90,9 +90,10 @@ export interface Activity<UserDefinedData> {
 
     /**
      * Because UserDefinedData is an abstract type, an Activity must be able to generate its initial state in
-     * order to initialize a new (or freshly-reset) Question. This function should not read from, or write to,
-     * the DOM. (Conceptually, it might as well not even be run in the browser: a future version of Hammock
-     * could run this function on the server.)
+     * order to initialize a new (or freshly-reset) Question.
+     *
+     * This function must not read from, or write to, the DOM. (Conceptually, it might as well not even be run
+     * in the browser: a future version of Hammock could run this function on the server.)
      *
      * This function is called on freshly-initalized questions and is re-invoked whenever the function is
      * reset, so it can be used to generate randomized questions.
@@ -103,8 +104,8 @@ export interface Activity<UserDefinedData> {
      * Reads the question state out of the template by accessing the DOM. This function must not modify the
      * DOM in any way.
      *
-     * One best practices isto keep this function (and the UserDefinedData) as simple as possible. The work of 
-     * interpreting the state should be placed in the {@link render} or {@link parse} methods as much as 
+     * One best practices isto keep this function (and the UserDefinedData) as simple as possible. The work of
+     * interpreting the state should be placed in the {@link render} or {@link parse} methods as much as
      * possible, even if that means both methods call the same functions to re-compute data.
      */
     read(): UserDefinedData;
@@ -115,20 +116,24 @@ export interface Activity<UserDefinedData> {
      *
      * The key `null` indicates that the corresponding Part has not been completed and should not be analyzed
      * to provide {@link FeedbackData FeedbackData}.
-     * 
+     *
      * A string `"correct"` is equivalent to the object `{key: correct}`. If you add other tags to the object,
      * they will be substitued into the feedback as [Mustache](https://mustache.github.io/) tags. For example,
      * if the {@link FeedbackSpec} in your JSON file looks like this:
-     * 
+     *
      * ```
-     * { 
+     * {
      *    "correct": [true, "Good!"],
      *    "checkagain": "Check the {{ord}} blank again."
      * }
      * ```
-     * 
-     * and your `parse()` function returns `[{ key: "checkagain", ord: "third" }]`, then the user will see "Check 
+     *
+     * and your `parse()` function returns `[{ key: "checkagain", ord: "third" }]`, then the user will see "Check
      * the third blank again" as their feedback.
+     *
+     * This function must not read from, or write to, the DOM. (Conceptually, it might as well not even be run
+     * in the browser: a future version of Hammock could run this function on the server.)
+     *
      */
     parse(userData: UserDefinedData): ({ key: string; [tag: string]: string } | string | null)[];
 }

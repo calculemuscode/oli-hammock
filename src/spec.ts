@@ -1,7 +1,7 @@
 /**
  * The core of the OLI hammock's data model is the QuestionSpec.
- * 
- * This interface describes the **flexible input** that OLI hammock reads from a JSON file. This data is 
+ *
+ * This interface describes the **flexible input** that OLI hammock reads from a JSON file. This data is
  * automatically converted into the much more rigid {@link QuestionData QuestionData} format.
  */
 export interface QuestionSpec {
@@ -29,9 +29,9 @@ export interface QuestionSpec {
 }
 
 /**
- * A {@link QuestionSpec Question} is made up of parts. 
- * 
- * This interface describes the **flexible input** that OLI hammock reads from a JSON file. This data is 
+ * A {@link QuestionSpec Question} is made up of parts.
+ *
+ * This interface describes the **flexible input** that OLI hammock reads from a JSON file. This data is
  * automatically converted into the much more rigid {@link PartData PartData} format.
  */
 export interface PartSpec {
@@ -67,10 +67,10 @@ export interface PartSpec {
  * Boolean values are shorthand: `[false, str]` gives no points, and `[true, str]` gives full points.
  *
  * Only specifying a string `str` is the same as `[0, s]`.
- * 
+ *
  * The strings you give will be interpreted as Mustache templates. See the {@link parse} function for details.
- * 
- * This interface describes the **flexible input** that OLI hammock reads from a JSON file. This data is 
+ *
+ * This interface describes the **flexible input** that OLI hammock reads from a JSON file. This data is
  * automatically converted into the much more rigid {@link FeedbackData FeedbackData} format.
  */
 export type FeedbackSpec = string | [boolean, string] | [number, string];
