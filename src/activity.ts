@@ -1,6 +1,10 @@
 /**
  * QuestionData is passed to the embedded {@link Activity Activity's} render() function, giving instructions
  * for rendering the entire question into the template.
+ * 
+ * This interface describes the data that that OLI hammock provides to the activities as they are running.
+ * The data that is provided in JSON format by the user is a bit less rigid; that data format is described by 
+ * the {@link FeedbackSpec} interface.
  */
 export interface QuestionData<UserDefinedData> {
     prompt?: string;
@@ -24,6 +28,10 @@ export interface QuestionData<UserDefinedData> {
 
 /**
  * The results from the grader's analysis of a part are stored in the PartData object.
+ * 
+ * This interface describes the data that that OLI hammock provides to the activities as they are running.
+ * The data that is provided in JSON format by the user is a bit less rigid; that data format is described by 
+ * the {@link PartSpec} interface.
  */
 export interface PartData {
     prompt?: string;
@@ -39,6 +47,15 @@ export interface PartData {
      */
     feedback?: FeedbackData;
 }
+
+/**
+ * The message associated with a piece of feedback will get interpreted as a Mustache template.
+ * See the description of the {@link parse} function for details.
+ * 
+ * This interface describes the data that that OLI hammock provides to the activities as they are running.
+ * The data that is provided in JSON format by the user is a bit less rigid; that data format is described by 
+ * the {@link FeedbackSpec} type.
+ */
 
 export interface FeedbackData {
     correct: boolean | "info";
@@ -98,6 +115,20 @@ export interface Activity<UserDefinedData> {
      *
      * The key `null` indicates that the corresponding Part has not been completed and should not be analyzed
      * to provide {@link FeedbackData FeedbackData}.
+     * 
+     * A string `"correct"` is equivalent to the object `{key: correct}`. If you add other tags to the object,
+     * they will be substitued into the feedback as [Mustache](https://mustache.github.io/) tags. For example,
+     * if the {@link FeedbackSpec} in your JSON file looks like this:
+     * 
+     * ```
+     * { 
+     *    "correct": [true, "Good!"],
+     *    "checkagain": "Check the {{ord}} blank again."
+     * }
+     * ```
+     * 
+     * and your `parse()` function returns `[{ key: "checkagain", ord: "third" }]`, then the user will see "Check 
+     * the third blank again" as their feedback.
      */
     parse(userData: UserDefinedData): ({ key: string; [tag: string]: string } | string | null)[];
 }
