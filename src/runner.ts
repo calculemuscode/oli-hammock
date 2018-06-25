@@ -61,7 +61,7 @@ export class Runner<UserDefinedData> {
         const targetWindow = window.frameElement
             ? window.frameElement.getAttribute("data-activityguid")
             : null;
-        this.offsetHeight = document.body.offsetHeight;
+        this.offsetHeight = -1;
         if (targetWindow !== null) {
             Array.from(window.parent.document.getElementsByTagName("iframe")).forEach(iframe => {
                 if (iframe.getAttribute("data-activityguid") === targetWindow) {
@@ -78,6 +78,8 @@ export class Runner<UserDefinedData> {
                         attributes: true,
                         subtree: true
                     });
+                    this.offsetHeight = document.body.offsetHeight;
+                    parentFrame.height = `${this.offsetHeight}px`;
                 }
             });
         }
