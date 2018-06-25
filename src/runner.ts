@@ -1,7 +1,6 @@
 import { SuperActivity } from "./superactivity";
 import { Activity, QuestionData, PartData, FeedbackData } from "./activity";
 import { QuestionInt, PartInt } from "./int";
-import { resizeOLIFrame } from "./resizeframe";
 import * as mustache from "mustache";
 
 /**
@@ -33,6 +32,7 @@ export class Runner<UserDefinedData> {
     private activity: Activity<UserDefinedData>;
     private superActivity: SuperActivity;
     private question: QuestionInt;
+    private offsetHeight: number;
 
     /**
      * A promise is used to avoid initializing with dummy data unnecessarily.
@@ -50,6 +50,37 @@ export class Runner<UserDefinedData> {
         this.superActivity = superActivity;
         this.activity = activity;
         this.question = question;
+
+        /**
+         * Grab parent frame (if we're in a parent frame) and use that to trigger the parent IFrame
+         * to resize whenever the height of the child changes.
+         *
+         * In the future, this could be replaced with a standardized ResizeObserver, but in 2018,
+         * ResizeObeserver is not yet standard in modern browsers.
+         */
+        const targetWindow = window.frameElement
+            ? window.frameElement.getAttribute("data-activityguid")
+            : null;
+        this.offsetHeight = document.body.offsetHeight;
+        if (targetWindow !== null) {
+            Array.from(window.parent.document.getElementsByTagName("iframe")).forEach(iframe => {
+                if (iframe.getAttribute("data-activityguid") === targetWindow) {
+                    const parentFrame = iframe;
+                    const mutationObserver = new MutationObserver(() => {
+                        const newHeight = document.body.offsetHeight;
+                        if (newHeight !== this.offsetHeight) {
+                            parentFrame.height = `${newHeight}px`;
+                            this.offsetHeight = newHeight;
+                        }
+                    });
+                    mutationObserver.observe(document.body, {
+                        childList: true,
+                        attributes: true,
+                        subtree: true
+                    });
+                }
+            });
+        }
 
         /**
          * The superActivity's information about attempt number and status is only correct immediately
@@ -73,8 +104,6 @@ export class Runner<UserDefinedData> {
                 );
                 const filename = $(record).attr("file_name") || "undefined";
                 const records = fileRecords.get(attempt);
-                console.log(`Attempt ${attempt}, filename ${filename}`);
-                console.log(record);
                 if (records !== undefined) {
                     records.add(filename);
                 } else {
@@ -136,7 +165,6 @@ export class Runner<UserDefinedData> {
 
             // Re-render display
             this.activity.render(questionData);
-            resizeOLIFrame();
         });
     }
 
