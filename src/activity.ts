@@ -64,6 +64,11 @@ export interface FeedbackData {
 }
 
 /**
+ * See the {@link parse} function.
+ */
+export type ParseResponse = { key: string; [tag: string]: string } | string | null;
+
+/**
  * An Activity object is what the OLI activity creater writes in order to build an embedded activity. This
  * Activity object will get passed to the OLI Hammock in order to build a complete activtiy that can be run
  * inside of OLI.
@@ -135,5 +140,5 @@ export interface Activity<UserDefinedData> {
      * in the browser: a future version of Hammock could run this function on the server.)
      *
      */
-    parse(userData: UserDefinedData): ({ key: string; [tag: string]: string } | string | null)[];
+    parse(userData: UserDefinedData): ParseResponse[];
 }
