@@ -3,16 +3,18 @@ import { Activity } from "./activity";
 import { readAssets } from "./assets";
 import { validateQuestions } from "./int";
 import { Runner } from "./runner";
+import { FrameSizer } from "./framesize";
 
 /**
  * Attach boilerplate elements to the page
  */
-function initializeHTML(assets: Map<string, Element>): void {
+function initializeHTML(assets: Map<string, Element>, framesizer: FrameSizer): void {
     // Always attach bootstrap to page (kind of ugly)
     $("<link/>", {
         rel: "stylesheet",
         type: "text/css",
-        href: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+        href: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css",
+        onload: () => framesizer.check()
     }).appendTo("head");
 
     // Attach layout assets to page
@@ -30,8 +32,12 @@ function initializeHTML(assets: Map<string, Element>): void {
 export function hammock<UserData>(activity: Activity<UserData>): SuperActivityClient {
     return {
         init: (superActivity: SuperActivity, activityData: Element): void => {
+            /**
+             * Get information about the surrounding iFrame.
+             */
+            const framesizer = new FrameSizer();
             readAssets(superActivity.webContentFolder, activityData).then(assets => {
-                initializeHTML(assets);
+                initializeHTML(assets, framesizer);
                 const questions = validateQuestions(assets.get("questions"));
                 const runner = new Runner<UserData>(superActivity, activity, questions[0]);
 
