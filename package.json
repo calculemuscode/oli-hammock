@@ -6,12 +6,12 @@
     "types": "lib/index.d.ts",
     "dependencies": {
         "immutable": "^3.8.2",
-        "mustache": "^2.3.0"
+        "mustache": "^2.3.2"
     },
     "devDependencies": {
-        "@types/jquery": "^3.3.2",
-        "@types/mustache": "^0.8.30",
-        "prettier": "^1.13.5",
+        "@types/jquery": "^3.3.9",
+        "@types/mustache": "^0.8.31",
+        "prettier": "^1.14.3",
         "surge": "^0.20.1",
         "typedoc": "^0.11.1",
         "typescript": "^2.9.2"
