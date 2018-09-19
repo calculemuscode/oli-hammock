@@ -1,8 +1,10 @@
-import { SuperActivity } from "./superactivity";
+import { SuperActivity, ActionLog } from "./superactivity";
 import { Activity, QuestionData, PartData, FeedbackData } from "./activity";
 import { QuestionInt, PartInt } from "./int";
 import * as mustache from "mustache";
 //
+declare const ActionLog: any;
+declare const SupplementLog: any;
 
 /**
  * The {@link Runner} object is an unfortunate abstraction, mostly created because I don't quite
@@ -96,7 +98,7 @@ export class Runner<UserDefinedData> {
             });
 
             /**
-             * THIRD, if there's a "feedback" record in the
+             * THIRD, if there's a "feedback" record in the current attempt, load them.
              */
             let feedback: Promise<(FeedbackData | null)[]>;
             if (previousRecords !== undefined && previousRecords.has("feedback")) {
@@ -216,7 +218,23 @@ export class Runner<UserDefinedData> {
                 .then(() => this.write("feedback", feedback))
                 .then(() => this.restart())
                 .then(() => this.write("state", state))
-                .then(() => {});
+                .then(() => new Promise((resolve) => {
+                    const action = new ActionLog(
+                        "SUBMIT_ATTEMPT",
+                        this.superActivity.sessionId,
+                        this.superActivity.resourceId,
+                        this.superActivity.activityGuid,
+                        "OLI_HAMMOCK_ACTIVITY",
+                        this.superActivity.timeZone
+                    );
+                    const supplement = new SupplementLog();
+                    supplement.setAction("EVALUATE_RESPONSE_TRACK");
+                    supplement.setSource("submitactivity");
+                    supplement.setInfoType("evaluation");
+                    supplement.setInfo(`${percentage === 100}`);
+                    action.addSupplement(supplement);
+                    this.superActivity.logAction(action, resolve);
+                    })).then(() => {});
         });
     }
 
@@ -237,3 +255,5 @@ export class Runner<UserDefinedData> {
         return this.stored.then(() => {});
     }
 }
+
+$(window.parent).focus
