@@ -1,6 +1,6 @@
 {
     "name": "@calculemus/oli-hammock",
-    "version": "3.2.0",
+    "version": "3.2.1",
     "description": "A harness for simplifying custom embedded activity creation in Carnegie Mellon's OLI system",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
@@ -9,7 +9,7 @@
         "mustache": "^2.3.2"
     },
     "devDependencies": {
-        "@types/jquery": "^3.3.9",
+        "@types/jquery": "^3.3.11",
         "@types/mustache": "^0.8.31",
         "prettier": "^1.14.3",
         "surge": "^0.20.1",

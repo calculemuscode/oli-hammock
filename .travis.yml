@@ -1,16 +1,15 @@
 language: node_js
-node_js: "node"
-
+node_js: node
 script:
-  - npm run typedoc
-
+- npm run typedoc
 deploy:
+  matrix:
   - provider: surge
     skip_cleanup: true
     on:
       tags: true
       repo: calculemuscode/oli-hammock
-    project: ./typedoc/
+    project: "./typedoc/"
     domain: oli-hammock.surge.sh
   - provider: npm
     skip_cleanup: true
@@ -19,4 +18,4 @@ deploy:
       repo: calculemuscode/oli-hammock
     email: rob@calculem.us
     api_key:
-      secure: ZKm5/rKMNsXXiV4jcEPg8vtM7xBCT9Q5c72nGsBDfg4kItIQf/J5hXqmTFXsj1NAMNemmiZrUBvOv+VjEYWcrmNqUvg9p0enhOi9UqQEAJ+ZXlyo/qz8FCuzE8gjxTYz1UA3gpAXAILLUqdIP3QQiOcpYZHHoRW+3fNaosls86QJXs7+wGAOa+87YJvMbFKn8VEZt76x7RKxMRDCskWgtrHPm4kzCCKXzym/s/uFHiHPbNJqzarK8FdBEn1jfhZ0/fWn3nQheNy23KdHomwn9zO0Gf7kqysXqpf8LlWUH/MMmNAfa1WCY2ID6t0vadDC7KcxhnJAb8gfn2N4utWfM9ndRCSVvR6YO24kvaAZ7H2yWxiW0KsHpT7pqU3YMUJZBC3mlWEBOXEoYZtfeyUvQuuoeYjK+d5XvJNvyCWXUWJn3px+Xbrq8AEZzJ3r/e/qkk8UToj16t8GtZdoJ8d4F4Kr7WR0ILXgWU1kpr23GGXjxxh7TKc4g/sguu9OkjCM6g3yhT9XAxEPJLijrIyWjsLtsnNI1WeOBDUNRTVx15YfIyM4LmEuqfTzZ3CbKDT2+gRHww7DHUX54iBQAViJr/2RbgszKRiFmD3g+05I9il5e6C+dX1veA1Q3dTUYyb9lYxlIu7bbZDxTvGR4fK3juql/nY/nCs+QaJihV4pu8A=
+      secure: rL4T3TaRNY6zmKVbFQdJYDbCLELGENGorWSPkPDdptrqwe/de90WNw0FSp8OxtbH8erfoyZap8SuY7rhxLBDdPRJeLmqtAM8Pmz/ngLyKgPbpX3XrxOQmOnS0IMllvDy9TA1lxm1Ow8sloLkgcJc1eiNaqy0FwbZlSLYMmOZTDxwO/7iF4hLJISfLIUWcVw4hOfqxkYnAapDItjNveWghlhk22GDK2R8FVLGdkxkbV3oXuMhddDaGeZbRKaypbfCXYOtHYhnr1lUGMsAGjF5RF80jzmllAoW7oxldp19thMyoP4MkhfgjNR9VSkENhFatUDWaQExULUOpFuhzpxZeTqholU9kaHRC6gPaWubeJadUcGGLybruJ6s7oJTJd/xygN8qnoXZxbnY3Rpw3x8LQv17T7TQlfxzscYiPA2gCgRvKFI3Gt2sbBcIEF7e81IvxnBH8at2TOp3nwj6iilLXo0bQE7jMhCWdycKJ6he+zEwXdWSQT7lZUhhF6ECdD7wfR8LH3WfgAtbtaeJXCU6pCaGV4CN3sO4luSC4T9lksIVttXMBLlnMxbKwn8AeJn8f2cLTUKjWODj48mBicG/BiaJPMxfCuyvrgPwbR4Z7NYbL8BjUi8vlrDateCX5kXC75R8ElR/O6NFCZvNZMkkemLYj2IDhEv054TZxIslMA=    
