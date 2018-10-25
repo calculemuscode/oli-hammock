@@ -1,8 +1,16 @@
 import { SuperActivity, ActionLog } from "./superactivity";
-import { Activity, QuestionData, PartData, FeedbackData } from "./activity";
-import { QuestionInt, PartInt } from "./int";
+import {
+    Activity,
+    QuestionData,
+    PartData,
+    FeedbackData,
+    STATUS_CORRECT,
+    STATUS_INCORRECT,
+    STATUS_NOT_FOUND
+} from "./activity";
+import { QuestionInt, PartInt } from "./validateinput";
 import * as mustache from "mustache";
-//
+
 declare const ActionLog: any;
 declare const SupplementLog: any;
 
@@ -89,7 +97,7 @@ export class Runner<UserDefinedData> {
          */
         if (currentRecords === undefined || !currentRecords.has("state")) {
             this.stored = Promise.resolve({
-                state: activity.init(),
+                state: activity.init(undefined, question.config),
                 feedback: question.parts.map(x => null)
             });
         } else {
@@ -118,49 +126,58 @@ export class Runner<UserDefinedData> {
     render(): Promise<void> {
         return this.stored.then(({ state, feedback }) => {
             const questionData: QuestionData<UserDefinedData> = {
+                prompt: this.question.prompt,
+                hints: this.question.hints,
+                config: this.question.config,
                 state: state,
                 parts: this.question.parts.map(
                     (part: PartInt, i): PartData => {
-                        const partData: PartData = {};
-                        const thisFeedback = feedback[i];
-                        if (part.prompt) partData.prompt = part.prompt;
-                        if (part.hints) partData.hints = part.hints.map(x => x); // Deep(er) copy
-                        if (thisFeedback) partData.feedback = thisFeedback;
-                        return partData;
+                        return {
+                            prompt: part.prompt,
+                            hints: part.hints ? part.hints.map(x => x) : [],
+                            config: part.config,
+                            feedback: feedback[i] || undefined
+                        };
                     }
                 )
             };
-
-            if (this.question.prompt) questionData.prompt = this.question.prompt;
-            if (this.question.hints) questionData.hints = this.question.hints;
 
             // Re-render display
             this.activity.render(questionData);
         });
     }
 
-    private grade(state: UserDefinedData): (FeedbackData | null)[] {
-        return this.activity.parse(state).map((response, i) => {
+    private grade(state: UserDefinedData, config: any): (FeedbackData | null)[] {
+        return this.activity.parse(state, config).map((response, i) => {
             if (!response) return null;
             const view = typeof response === "string" ? { key: response } : response;
-            const match = this.question.parts[i].match.get(view.key);
 
-            if (!match) {
-                const nomatch = this.question.parts[i].nomatch;
-                if (!nomatch) throw new Error(`grade: question ${i} has no match for ${view.key}`);
-
+            let match = this.question.parts[i].match.get(view.key);
+            if (match) {
                 return {
-                    correct: nomatch.score === this.question.parts[i].score,
-                    score: nomatch.score,
-                    message: mustache.render(nomatch.message, view)
-                };
-            } else {
-                return {
-                    correct: match.score === this.question.parts[i].score,
-                    score: match.score,
+                    key: view.key,
+                    status: match.score >= this.question.parts[i].score ? STATUS_CORRECT : STATUS_INCORRECT,
+                    score: Math.min(this.question.parts[i].score, match.score),
                     message: mustache.render(match.message, view)
                 };
             }
+
+            match = this.question.match.get(view.key);
+            if (match) {
+                return {
+                    key: view.key,
+                    status: match.score >= this.question.parts[i].score ? STATUS_CORRECT : STATUS_INCORRECT,
+                    score: Math.min(this.question.parts[i].score, match.score),
+                    message: mustache.render(match.message, view)
+                };
+            }
+
+            return {
+                key: view.key,
+                status: STATUS_NOT_FOUND,
+                score: 0,
+                message: view.key
+            };
         });
     }
 
@@ -198,7 +215,7 @@ export class Runner<UserDefinedData> {
     submit(): Promise<void> {
         this.stored = this.stored.then(() => {
             const state = this.activity.read();
-            return { state: state, feedback: this.grade(state) };
+            return { state: state, feedback: this.grade(state, this.question.config) };
         });
         return this.stored.then(({ state, feedback }) => {
             const pointsEarned = feedback.reduce((total, x) => {
@@ -206,9 +223,43 @@ export class Runner<UserDefinedData> {
                 return total + x.score;
             }, 0);
             const pointsAvailable = this.question.parts.reduce((total, x) => total + x.score, 0);
-            const percentage = Math.floor((100 * pointsEarned) / pointsAvailable);
+            const percentage = Math.min(100, Math.floor((100 * pointsEarned) / pointsAvailable));
 
-            return this.write("state", state)
+            // Part logging
+            const dashboardLogging: Promise<void>[] = feedback.map((value, part) => {
+                if (value === null) return Promise.resolve();
+                const step = `p${part + 1}`;
+                return new Promise(resolve => {
+                    const action = new ActionLog(
+                        "SUBMIT_ATTEMPT",
+                        this.superActivity.sessionId,
+                        this.superActivity.resourceId,
+                        this.superActivity.activityGuid,
+                        "OLI_HAMMOCK_ACTIVITY",
+                        this.superActivity.timeZone
+                    );
+
+                    const trackingSupplement = new SupplementLog();
+                    trackingSupplement.setAction("EVALUATE_RESPONSE_TRACK");
+                    trackingSupplement.setSource("question");
+                    trackingSupplement.setInfoType(step);
+                    trackingSupplement.setInfo(`${percentage === 100}`);
+                    action.addSupplement(trackingSupplement);
+
+                    const dataSupplement = new SupplementLog();
+                    dataSupplement.setAction("EVALUATE_QUESTION");
+                    dataSupplement.setSource("question");
+                    dataSupplement.setInfoType(step);
+                    dataSupplement.setInfo(value.key);
+                    action.addSupplement(dataSupplement);
+
+                    this.superActivity.logAction(action, resolve);
+                });
+            });
+
+            // Core OLI logging
+            return Promise.all(dashboardLogging)
+                .then(() => this.write("state", state))
                 .then(
                     () =>
                         new Promise(resolve => {
@@ -218,23 +269,7 @@ export class Runner<UserDefinedData> {
                 .then(() => this.write("feedback", feedback))
                 .then(() => this.restart())
                 .then(() => this.write("state", state))
-                .then(() => new Promise((resolve) => {
-                    const action = new ActionLog(
-                        "SUBMIT_ATTEMPT",
-                        this.superActivity.sessionId,
-                        this.superActivity.resourceId,
-                        this.superActivity.activityGuid,
-                        "OLI_HAMMOCK_ACTIVITY",
-                        this.superActivity.timeZone
-                    );
-                    const supplement = new SupplementLog();
-                    supplement.setAction("EVALUATE_RESPONSE_TRACK");
-                    supplement.setSource("submitactivity");
-                    supplement.setInfoType("evaluation");
-                    supplement.setInfo(`${percentage === 100}`);
-                    action.addSupplement(supplement);
-                    this.superActivity.logAction(action, resolve);
-                    })).then(() => {});
+                .then(() => {});
         });
     }
 
@@ -247,7 +282,7 @@ export class Runner<UserDefinedData> {
             return this.write("reset", state)
                 .then(() => this.restart())
                 .then(() => {
-                    const newState = this.activity.init();
+                    const newState = this.activity.init(state, this.question.config);
                     return this.write("state", newState);
                 })
                 .then(newState => ({ state: newState, feedback: this.question.parts.map(() => null) }));
@@ -256,4 +291,4 @@ export class Runner<UserDefinedData> {
     }
 }
 
-$(window.parent).focus
+$(window.parent).focus;

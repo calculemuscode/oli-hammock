@@ -23,7 +23,7 @@ export function readAssets(webContentFolder: string, activityData: Element): Pro
                 console.error(`Asset being discarded: ${value}`);
             } else {
                 // Right now we're treating ALL assets as files to be loaded into memory. That's probably not
-                // actually the right move permanently, but doing better will require
+                // actually the right move permanently, but doing better will require more thought.
                 promises.set(
                     name,
                     new Promise(resolve => {

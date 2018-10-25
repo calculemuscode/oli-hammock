@@ -1,76 +1,93 @@
 /**
  * The core of the OLI hammock's data model is the QuestionSpec.
  *
- * This interface describes the **flexible input** that OLI hammock reads from a JSON file. This data is
- * automatically converted into the much more rigid {@link QuestionData QuestionData} format.
+ * This interface describes the **flexible input** that OLI hammock reads from a JSON file.
+ * The data passed to the activity is the more rigid {@link QuestionData QuestionData} format.
  */
 export interface QuestionSpec {
     /**
-     * Prompts can optionally be associated with a question.
+     * Configuration: an optional prompt, passed directly to the activity.
      */
-    prompt?: string;
+    readonly prompt?: string;
 
     /**
-     * A question is made up of either one {@link PartSpec Part} or several {@link PartSpec Parts}. _Exactly
-     * one_ of `parts` and `part` fields _must_ be present.
+     * Configuration: optional hints, passed directly to the activity.
      */
-    part?: PartSpec;
+    readonly hints?: string[];
 
     /**
-     * A question is made up of either one {@link PartSpec Part} or several {@link PartSpec Parts}. _Exactly
-     * one_ of `parts` and `part` fields _must_ be present.
+     * Configuration: arbitrary JSON data, passed directly to the activitiy.
      */
-    parts?: PartSpec[];
+    readonly config?: any;
 
     /**
-     * Hints may be associated with a complete question.
+     * The grading logic shared between all the parts of this question. If there are question
+     * parts with grading logic, the grade key will be looked up in the part's table first,
+     * and this grading table will be accessed only if the key is not found in the
+     * part's grading table. This data is only accessible to OLI Hammock, it is not passed
+     * to the activity.
      */
-    hints?: string[];
+    readonly match?: { [key: string]: FeedbackSpec };
+
+    /**
+     * Max score for the whole question. Defaults to the sum of the score parts the `parts`
+     * field exists, and 1 otherwise.
+     */
+    readonly score?: number;
+
+    /**
+     * A multipart question configures the individual parts with an array of {@link PartSpec Parts}.
+     * Must be non-empty.
+     */
+    readonly parts?: PartSpec[];
 }
 
 /**
- * A {@link QuestionSpec Question} is made up of parts.
+ * A {@link QuestionSpec Question} is made up of parts. In multipart questions, these parts can
+ * have their own configuration data.
  *
- * This interface describes the **flexible input** that OLI hammock reads from a JSON file. This data is
- * automatically converted into the much more rigid {@link PartData PartData} format.
+ * This interface describes the **flexible input** that OLI hammock reads from a JSON file.
+ * The data passed to the activity is the more rigid {@link PartData PartData} format.
  */
 export interface PartSpec {
     /**
-     * Prompts can optionally be associated with a single part of a {@link QuestionSpec Question}.
+     * Configuration: an optional prompt, passed directly to the activity.
      */
-    prompt?: string;
+    readonly prompt?: string;
 
     /**
-     * Part score. Defaults to 1 if omitted.
+     * Configuration: optional hints, passed directly to the activity.
      */
-    score?: number;
+    readonly hints?: string[];
 
     /**
-     * The grading logic for the question is a map from keys to feedback.
+     * Configuration: arbitrary JSON data, passed directly to the activitiy.
      */
-    match: { [key: string]: FeedbackSpec };
+    readonly config?: any;
 
     /**
-     * If the match logic is potentially incomplete, there *must* be a fallthrough `nomatch` case.
+     * The grading logic for this question part. This logic will be applied first,
+     * and if the key is not found in this table, the match associated with the question
+     * will be used instead.
      */
-    nomatch?: FeedbackSpec;
+    readonly match?: { [key: string]: FeedbackSpec };
 
     /**
-     * Hints may be associated with a part.
+     * Max score for this part. Defaults to 1 if omitted.
      */
-    hints?: string[];
+    readonly score?: number;
 }
 
 /**
  * The full specification of piece of feedback is a number (the score) and a string.
  *
- * Boolean values are shorthand: `[false, str]` gives no points, and `[true, str]` gives full points.
+ * Boolean values are shorthand: `[false, str]` gives no points, and `[true, str]` gives the max points.
  *
  * Only specifying a string `str` is the same as `[0, s]`.
  *
  * The strings you give will be interpreted as Mustache templates. See the {@link parse} function for details.
  *
- * This interface describes the **flexible input** that OLI hammock reads from a JSON file. This data is
- * automatically converted into the much more rigid {@link FeedbackData FeedbackData} format.
+ * This interface describes the **flexible input** that OLI hammock reads from a JSON file.
+ * The data passed to the activity is the more rigid {@link FeedbackData FeedbackData} format.
  */
 export type FeedbackSpec = string | [boolean, string] | [number, string];

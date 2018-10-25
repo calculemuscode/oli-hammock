@@ -1,6 +1,6 @@
 {
     "name": "@calculemus/oli-hammock",
-    "version": "3.2.3",
+    "version": "4.0.0-rc2",
     "description": "A harness for simplifying custom embedded activity creation in Carnegie Mellon's OLI system",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
@@ -9,7 +9,7 @@
         "mustache": "^2.3.2"
     },
     "devDependencies": {
-        "@types/jquery": "^3.3.11",
+        "@types/jquery": "^3.3.20",
         "@types/mustache": "^0.8.31",
         "prettier": "^1.14.3",
         "surge": "^0.20.1",
@@ -18,13 +18,13 @@
     },
     "author": "Calculemus LLC",
     "scripts": {
-        "compile": "tsc -p .",
-        "pretypedoc": "npm run compile",
+        "tsc": "tsc -p .",
+        "pretypedoc": "npm run tsc",
         "typedoc": "typedoc --out typedoc --mode file ./src/index.ts",
         "presurge": "npm run typedoc",
         "surge": "surge -p ./typedoc -d oli-hammock.surge.sh",
         "prettier": "prettier --write src/**/*.ts *.json",
-        "prepublishOnly": "npm run compile"
+        "prepublishOnly": "npm run tsc"
     },
     "repository": {
         "type": "git",

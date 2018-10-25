@@ -1,7 +1,7 @@
 import { SuperActivity, SuperActivityClient } from "./superactivity";
 import { Activity } from "./activity";
 import { readAssets } from "./assets";
-import { validateQuestions } from "./int";
+import { validateQuestion } from "./validateinput";
 import { Runner } from "./runner";
 import { FrameSizer } from "./framesize";
 
@@ -38,8 +38,8 @@ export function hammock<UserData>(activity: Activity<UserData>): SuperActivityCl
             const framesizer = new FrameSizer();
             readAssets(superActivity.webContentFolder, activityData).then(assets => {
                 initializeHTML(assets, framesizer);
-                const questions = validateQuestions(assets.get("questions"));
-                const runner = new Runner<UserData>(superActivity, activity, questions[0]);
+                const questions = validateQuestion(assets.get("questions"));
+                const runner = new Runner<UserData>(superActivity, activity, questions);
 
                 // Add interaction buttons
                 $("#oli-embed").append(

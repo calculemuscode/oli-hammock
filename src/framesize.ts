@@ -8,24 +8,24 @@ export class FrameSizer {
 
     private log(msg: string) {
         if (this.verbose) {
-            console.log(`FrameSizer: ${msg}`)
+            console.log(`FrameSizer: ${msg}`);
         }
     }
 
     private error(msg: string) {
-        console.error(`FrameSizer: ${msg}`)
+        console.error(`FrameSizer: ${msg}`);
     }
 
     /**
-     * 
+     *
      * @param opt.verbose If true, print verbose input about resizing to the console.
      * @param opt.spindebug If true, run a continuous process in the background to check that the height is correct. (THIS IS VERY EXPENSIVE.)
      */
-    public constructor(opt?: { verbose?: boolean, spindebug?: boolean }) {
+    public constructor(opt?: { verbose?: boolean; spindebug?: boolean }) {
         this.verbose = !!opt && !!opt.verbose;
         const parentIFrame = window.frameElement;
         if (parentIFrame === null) {
-            this.log("Not inside loop, not doing anything.")
+            this.log("Not inside loop, not doing anything.");
             this.parentIFrame = null;
             this.knownHeight = -1;
             this.needsChecks = false;
@@ -40,16 +40,20 @@ export class FrameSizer {
             this.parentIFrame.height = `${this.knownHeight}px`;
 
             // Very expensive constant rechecking of height (debugging only, doesn't resize)
-            const me = this;           
+            const me = this;
             function loop(docheight: number, frameheight: number, start: number) {
                 const newdocheight = document.body.offsetHeight;
                 const newframeheight = parseInt(me.parentIFrame!.height);
                 const now = Math.floor(performance.now() - start);
                 if (newdocheight !== docheight || newframeheight !== frameheight) {
                     if (newdocheight === newframeheight) {
-                        console.log(`FrameSizer +${now}: correct iframe height ${newframeheight} for this document height`);
+                        console.log(
+                            `FrameSizer +${now}: correct iframe height ${newframeheight} for this document height`
+                        );
                     } else {
-                        console.log(`FrameSizer +${now}: incorrect iframe height ${newframeheight} for document height ${newdocheight}`)
+                        console.log(
+                            `FrameSizer +${now}: incorrect iframe height ${newframeheight} for document height ${newdocheight}`
+                        );
                     }
                 }
                 setTimeout(() => loop(newdocheight, newframeheight, start));
@@ -94,12 +98,12 @@ export class FrameSizer {
 
     public check() {
         if (this.needsChecks) {
-            this.log("check() called, check will be performed.")
+            this.log("check() called, check will be performed.");
             this.doCheck();
         } else if (this.parentIFrame === null) {
-            this.log("check() called, but will be ignored")
+            this.log("check() called, but will be ignored");
         } else {
-            this.log("check() called, but will be ignored because there we are using ResizeObserver")
+            this.log("check() called, but will be ignored because there we are using ResizeObserver");
         }
     }
 }

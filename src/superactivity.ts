@@ -3,19 +3,19 @@
  * correctly.
  */
 export interface SupplementLog {
-    action: string,
-    source: string,
-    infoType: string,
-    info: "true" | "false"
+    action: string;
+    source: string;
+    infoType: string;
+    info: "true" | "false";
 }
 
 export interface ActionLog {
-    action: string,
-    sessionId: string,
-    info: string,
-    externalObjectId: string,
-    source: string,
-    timeZone: string,
+    action: string;
+    sessionId: string;
+    info: string;
+    externalObjectId: string;
+    source: string;
+    timeZone: string;
     supplements: SupplementLog[];
 }
 
