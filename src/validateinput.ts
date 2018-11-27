@@ -1,5 +1,5 @@
 /**
- * Internal (canonicalized) version of QuestionSpec
+ * @internalapi (canonicalized) version of QuestionSpec
  */
 export interface QuestionInt {
     readonly prompt?: string;
@@ -10,14 +10,19 @@ export interface QuestionInt {
     readonly match: Map<string, FeedbackInt>;
 }
 
+/**
+ * @internalapi (canonicalized) version of PartSpec
+ */
 export interface PartInt {
     readonly prompt?: string;
     readonly hints?: string[];
-    readonly config?: any;
     readonly score: number;
     readonly match: Map<string, FeedbackInt>;
 }
 
+/**
+ * @internalapi (canonicalized) version of FeedbackSpec
+ */
 export interface FeedbackInt {
     readonly score: number;
     readonly message: string;
@@ -141,7 +146,6 @@ function validatePart(part: any): PartInt {
     const result: {
         prompt?: string;
         hints?: string[];
-        config?: any;
         score: number;
         match: Map<string, FeedbackInt>;
     } = {
@@ -150,7 +154,6 @@ function validatePart(part: any): PartInt {
     };
 
     if (part.prompt) result.prompt = part.prompt;
-    if (part.config) result.config = part.config;
     if (part.hints) {
         result.hints = part.hints.map(
             (hint: any): string => {

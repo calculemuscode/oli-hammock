@@ -10,8 +10,8 @@ function SuperActivityMock() {
     this.logAction = (action, callback) => { console.info(`logged action: ${JSON.stringify(action)}`); setTimeout(() => callback()); };
 }
 
-function ActionLog() { };
-ActionLog.prototype.addSupplement = function(x) { this.supplement = x; }
+function ActionLog() { this.supplement = []; };
+ActionLog.prototype.addSupplement = function(x) { this.supplement.push(x); }
 
 function SupplementLog() { };
 SupplementLog.prototype.setAction = function(x) { this.action = x; }

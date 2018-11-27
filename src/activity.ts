@@ -34,7 +34,7 @@ export interface QuestionData<UserDefinedData> {
     readonly state: UserDefinedData;
 }
 
-/**
+/** @externalapi
  * The results from the grader's analysis of a part are stored in the PartData object.
  *
  * This interface describes the data that that OLI hammock provides to the activities as they are running.
@@ -42,25 +42,20 @@ export interface QuestionData<UserDefinedData> {
  * the {@link PartSpec} interface.
  */
 export interface PartData {
-    /**
+    /** @externalapi
      * Configuration: an optional prompt, passed directly from the configuration JSON.
      */
     readonly prompt?: string;
 
-    /**
+    /** @externalapi
      * Configuration: optional hints, passed directly from the configuration JSON.
      */
     readonly hints?: string[];
 
-    /**
-     * Configuration: arbitrary JSON data, passed directly from the configuration JSON.
-     */
-    readonly config?: any;
-
-    /**
+    /** @externalapi
      * If the `analysis` field exists, then this part has been graded.
      */
-    feedback?: FeedbackData;
+    readonly feedback?: FeedbackData;
 }
 
 /**
@@ -103,11 +98,11 @@ export interface Activity<UserDefinedData> {
      * Renders the question state into the template by writing into the DOM. This is the only function that
      * should ever modify the DOM. This function must NOT modify the data object that it is passed in any way.
      *
-     * This function must be an idempotent function: calling it twice has to have the same result as calling it
-     * once. (This means it shouldn't append anything to an HTML element unless it clears that element first.)
-     * It must also be history agnostic function: the visual result must be the same regardless of
-     * whether the HTML template is freshly loaded from the assets or whether render() has been called
-     * seventy-six times already with wildly different inputs.
+     * This function must be an idempotent function: you are required to write it in such a way that
+     * calling it twice has the same result as calling it once. (This means it shouldn't append anything to an
+     * HTML element unless it clears that element first.) It must also be history agnostic function: the visual
+     * result must be the same regardless of whether the HTML template is freshly loaded from the assets or
+     * whether render() has been called seventy-six times already with wildly different inputs.
      *
      * This basically means that the render method must proactively set EVERY property that could possibly
      * be modified by the user or by other calls to `render()`.

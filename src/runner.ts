@@ -15,7 +15,7 @@ declare const ActionLog: any;
 declare const SupplementLog: any;
 
 /**
- * The {@link Runner} object is an unfortunate abstraction, mostly created because I don't quite
+ * The {@link Runner} object is an unfortunate bit of @internalapi, mostly created because I don't quite
  * trust the {@link SuperActivity} to maintain internal data consistency, distinguish strings and
  * numbers, etc. Also because the {@link SuperActivity} defines a very general interaction protocol,
  * and I want to document and enforce a much more rigid protocol for the sake of simplicity. The role
@@ -135,7 +135,6 @@ export class Runner<UserDefinedData> {
                         return {
                             prompt: part.prompt,
                             hints: part.hints ? part.hints.map(x => x) : [],
-                            config: part.config,
                             feedback: feedback[i] || undefined
                         };
                     }

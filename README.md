@@ -25,10 +25,65 @@ embedded activity, as far as OLI Superactivity is concerned.
 [![dependencies Status](https://david-dm.org/calculemuscode/oli-hammock/status.svg)](https://david-dm.org/calculemuscode/oli-hammock)
 [![devDependencies Status](https://david-dm.org/calculemuscode/oli-hammock/dev-status.svg)](https://david-dm.org/calculemuscode/oli-hammock?type=dev)
 
-Overview
-========
+Quick Start
+===========
 
-A Hammock project
+You can create and start a hammock project by running the following commands, replacing `my_project` with any name you want for your project. The `create-oli-hammock` script will ask you a number of questions, but it is okay to accept all the default answers by pressing the Enter key.
+
+```
+npx create-oli-hammock my_project
+cd my_project
+npm install
+npm run watch
+```
+
+This starts a test version of a project where you can view it [on your local computer](http://localhost:8080/).
+
+Pieces of a Project
+===================
+
+The default `create-oli-hammock` project contains several files that you won't need to edit:
+
+ * `main.ts` - this is just an entry point into the code you will write
+ * `main.xml` - this is used by the Hammock and by OLI to find the pieces of your activity
+ * `node_modules` - this directory is automatically created and managed by NPM
+ * `package-lock.json` - this file is automatically managed by NPM
+ * `tsconfig.json` - this file tells Typescript how the project is built
+ * `webpack.config.json` - this tells Hammock how to run your file locally, and how to build it for OLI
+
+You probably won't need to muck about with `package.json` either, at least at first.
+
+The files you want to immediately look at are these three:
+
+ * `activity.ts`
+ * `assets/webcontent/my_project/layout.html` (but with `my_project` replaced by the name you gave to `create-oli-hammock`)
+ * `assets/webcontent/my_project/questions.json` (but with `my_project` replaced by the name you gave to `create-oli-hammock`)
+
+Let's look at those three files:
+
+activity.ts
+-----------
+
+The `activity.ts` creates a single {@link Activity} object. The documentation for {@link Activity}, especially the documentation 
+for its three methods {@link Activity.init `init()`}, {@link Activity.parse `parse()`}, {@link Activity.read `read()`}, and {@link Activity.render `render()`}, are where you should start when trying
+to understand Hammock.
+
+The {@link Activity.read `read()`} function reads the DOM to capture all student response data into a
+serializable object (in this case, an array with two elements). The hammock doesn't care what type of data
+this is, as long as `JSON.parse(JSON.stringify(data))` is structurally the same as `data`.
+
+The {@link Activity.init `init()`} function defines an initial object representing the state of a page with no
+response data. This is called when the assignment is newly-initialized or newly-reset.
+
+The {@link Activity.render `render()`} function changes the contents defined in the `layout` asset file based
+on the {@link QuestionSpec} it is given. It should be the only function that manipulates the DOM, and it has
+to be careful what changes it makes to the layout. This funciton must _always_ produce the same display given
+the same information, regardless of what sequence of `render` calls have happened earlier.
+
+The {@link Activity.parse `parse()`} function converts the object representating the state of the page into an
+array of strings, which will be used as the keys for grading. In this example, it turns the array of two text
+inputs into an array of two strings, either `"blank"`, `"nan"`, `"neg"`, `"even"` or `"odd"`. We'll see how
+these keys are used later in `questions.json`.
 
 Example project
 ===============
@@ -57,40 +112,6 @@ into multiple files, explains how to `render` existing student responses and fee
 `read` current student responses from the layout, and how to `parse` the student responses into a string for
 grading.
 
-``` js
-const hammock = require("@calculemus/oli-hammock");
-
-const parse = (str) => {
-    if (!str || str === "") return "blank";
-    const i = parseInt(str);
-    if (isNaN(i)) return "nan";
-    if (i.toString() !== str) return "nan";
-    if (i < 0) return "neg";
-    return i % 2 === 0 ? "even" : "odd";
-};
-
-module.exports = hammock.hammock({
-    init: () => ["", ""],
-
-    render: (data) => {
-       $("#prompt").text(data.prompt);
-       $("#blank0").val(data.response[0]);
-       $("#feedback0").text(data.parts[0].feedback ? data.parts[0].feedback.message : "");
-       $("#blank1").val(data.response[1]);
-       $("#feedback1").text(data.parts[1].feedback ? data.parts[1].feedback.message : "");
-    },
-
-    read: () => {
-       return [
-           $("#blank0").val(),
-           $("#blank1").val()
-       ];
-    },
-
-    parse: data => data.map(parse)
-});
-```
-
 The {@link Activity.read `read()`} function reads the DOM to capture all student response data into a
 serializable object (in this case, an array with two elements). The hammock doesn't care what type of data
 this is, as long as `JSON.parse(JSON.stringify(data))` is structurally the same as `data`.
@@ -104,133 +125,13 @@ to be careful what changes it makes to the layout. This funciton must _always_ p
 the same information, regardless of what sequence of `render` calls have happened earlier.
 
 The {@link Activity.parse `parse()`} function converts the object representating the state of the page into an
-array of strings, which will be used as the keys for grading. In this example, it turns the array of two text
-inputs into an array of two strings, either `"blank"`, `"nan"`, `"neg"`, `"even"` or `"odd"`. We'll see how
-these keys are used later in `questions.json`.
-
-package.json
-------------
-
-The first boilerplate file is `package.json`; we use NPM to install dependencies and run scripts. The `watch`
-script is just for local testing.
-
-``` json
-{
-  "scripts": {
-    "webpack": "webpack",
-    "watch": "webpack-dev-server --progress --colors"
-  },
-  "devDependencies": {
-    "@calculemus/oli-hammock": "^0.3.0",
-    "path": "^0.12.7",
-    "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.9.7"
-  }
-}
-```
-
-Instead of copy-pasting this file, you probably want to start with this `package.json` file:
-
-``` json
-{
-  "scripts": {
-    "webpack": "webpack",
-    "watch": "webpack-dev-server --progress --colors"
-  }
-}
-```
-
-and then run this command to get the latest version of the development dependencies:
-
-```
-npm i @calculemus/oli-hammock path webpack webpack-dev-server --save-dev
-```
-
-webpack.config.js
------------------
-
-Webpack is confusing and has too many options, but you should be able to just copy and paste this file. The
-`devServer` part is just for local testing.
-
-``` js
-const path = require("path");
-
-module.exports = {
-    entry: {
-        activity: "./main.js"
-    },
-    output: {
-        filename: "activity.js",
-        libraryTarget: "umd",
-        path: path.resolve(__dirname, "dist")
-    },
-    devServer: {
-        contentBase: [
-            path.join(__dirname),
-            path.join(__dirname, "node_modules/@calculemus/oli-hammock/assets")
-        ]
-    }
-}
-```
-
-Running the command `npm run webpack` will create a file `dist/activity.js` which can be used directly on OLI.
-
-Testing OLI Activities Locally
-==============================
-
-The three files above will allow Webpack to create an OLI activity; however, three other files must be present
-on OLI in order for the assignment to work. If you include those files in your NPM project (or symlink them
-from the OLI repository into your NPM project), you will also be able to run your activity locally with the
-webpack development server.
-
-One `activity.js` file can be connected to multiple support files to create multiple variations on the same
-embedded question type, but the setup described here only allows you to test `activity.js` against a single
-activity.
-
-Here are the files you need:
-
- * `main.xml` - `<embed-activity/>` specification file, maybe should be a symlink to
-   `$OLI_REPO/Integers/x-oli-embed-activity/evenodd.xml`.
- * `assets/Integers/webcontent/evenodd` - Path after `assets` matches the paths in `main.xml`, one of the
-   directories in this chain should maybe be a symlink.
-    * `layout.html` - HTML template for question.
-    * `questions.json` - Question spec, conforming to {@link QuestionSpec} type.
-
-main.xml
---------
-
-The `main.xml` file for any hammock-based activity needs to contain at two assets, `"layout"` and
-`"questions"`. The filenames don't need to actually be named `layout.html` and `questions.json`, they just
-need to be `.html` and `.json` assets with the right `asset name`.
-
-``` xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE embed_activity PUBLIC "-//Carnegie Mellon University//DTD Embed 1.1//EN" "http://oli.cmu.edu/dtd/oli-embed-activity_1.0.dtd">
-<embed_activity id="harnessed" width="500" height="300">
-  <title>Harness demo</title>
-  <source>Integers/webcontent/evenodd/activity.js</source>
-  <assets>
-    <asset name="layout">Integers/webcontent/evenodd/layout.html</asset>
-    <asset name="questions">Integers/webcontent/evenodd/questions.json</asset>
-  </assets>
-</embed_activity>
-```
+array of strings, which will be used as the keys for grading. These keys appear again later in `questions.json`.
 
 layout.html
 -----------
 
 The `layout.html` file defines a template for receiving student input and displaying hints and feedback. It
-does not include the SUBMIT and RESET buttons.
-
-``` html
-<div>
-  <p id="prompt" />
-  <input type="text" id="blank0" />
-  <p id="feedback0" />
-  <input type="text" id="blank1" />
-  <p id="feedback1" />
-</div>
-```
+does not include the SUBMIT and RESET buttons; those get added automatically by Hammock.
 
 questions.json
 --------------
@@ -239,44 +140,14 @@ The `questions.json` asset defines how many parts a question has (this must agre
 `read` function). This file includes most of the grading logic, and needs to match up to the `parse` function
 defined in the {@link Activity}.
 
-The questions.json file should either be a single {@link QuestionSpec} or a list of QuestionSpec objects.
-
-``` json
-{
-  "prompt": "Enter a nonnegative even number, then a nonnegative odd number",
-  "parts": [
-    {
-      "match": {
-        "even": [true, "Correct, that's an even number."],
-        "odd": "Incorrect, that's not an even number.",
-        "neg": "Incorrect. That's negative; we asked for a nonnegative number.",
-        "blank": "Please given an answer for this part."
-      },
-      "nomatch": "That's not an integer."
-    },
-    {
-      "match": {
-        "even": "Incorrect, that's not an odd number.",
-        "odd": [true, "Correct, that's an odd number."],
-
-        "neg": "Incorrect. That's negative; we asked for a nonnegative number.",
-        "blank": "Please given an answer for this part."
-      },
-      "nomatch": "That's not an integer."
-    }
-  ]
-}
+The questions.json file should contain data that matches the description of a {@link QuestionSpec}.
 ```
 
-Testing the activity
---------------------
+OLI Hammock Commands
+====================
 
-With these six files in place, you can run `npm i` and `npm run watch` and then go to http://localhost:8080/
-to interact with the assignment.
+`npm run watch` starts your activity running locally, at http://localhost:8080.
 
-Modifying the webpack configuration
------------------------------------
+`npm run dist` starts your activity running on the internet where you can share it, using the free functionality of [surge.sh](https://surge.sh/). If this doesn't work (for instance, because your project name is taken already), you may need to edit the URL that surge will try to publish to in `package.json`. (The address still needs to be a surge.sh address, like somethingorother.surge.sh).
 
-If you set up the `assets` directory as a symlink, and you want `npm run webpack` to put the complied file in,
-say, `Integers/webcontent/evenodd/activity.js` so that it can be checked right in to SVN, then you would
-change the `path` argument under `output` to `path.resolve(__dirname, "assets/Integers/webcontent/evenodd")`.
+`npm run deploy` only works if you provided an OLI project repository root when you first ran `create-oli-hammock`. If you did this, then this will deploy your activity into that OLI project repository.

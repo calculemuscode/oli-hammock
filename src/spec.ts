@@ -61,11 +61,6 @@ export interface PartSpec {
     readonly hints?: string[];
 
     /**
-     * Configuration: arbitrary JSON data, passed directly to the activitiy.
-     */
-    readonly config?: any;
-
-    /**
      * The grading logic for this question part. This logic will be applied first,
      * and if the key is not found in this table, the match associated with the question
      * will be used instead.
