@@ -81,51 +81,7 @@ to be careful what changes it makes to the layout. This funciton must _always_ p
 the same information, regardless of what sequence of `render` calls have happened earlier.
 
 The {@link Activity.parse `parse()`} function converts the object representating the state of the page into an
-array of strings, which will be used as the keys for grading. In this example, it turns the array of two text
-inputs into an array of two strings, either `"blank"`, `"nan"`, `"neg"`, `"even"` or `"odd"`. We'll see how
-these keys are used later in `questions.json`.
-
-Example project
-===============
-
-This walkthrough covers the
-[evenodd](https://github.com/calculemuscode/oli-hammock-examples/tree/master/evenodd) project in the
-[oli-hammock examples](https://github.com/calculemuscode/oli-hammock-examples).
-
-An activity should be its own npm project, structured roughly like this. This is the simplest imaginable
-project; it doesn't do any hints or formatting of output at all. The
-[names](https://github.com/calculemuscode/oli-hammock-examples/tree/master/names) example is a slightly more
-realistic activity that uses [oli-widgets](https://www.npmjs.com/package/@calculemus/oli-widgets) to give
-elements the correct style.
-
- * `main.js` - Entry point for assignment (defined in `webpack.config.js`) that calls the {@link hammock} function
-    with an {@link Activity} object defining the activity.
- * `package.json` - boilerplate
- * `webpack.config.js` - boilerplate
-
-main.js
--------
-
-The `main.js` file wraps the {@link hammock} function around the {@link Activity} object containing the
-assignment logic. In this example, the assignment logic, which in a larger project would probably be split
-into multiple files, explains how to `render` existing student responses and feedback onto the layout, how to
-`read` current student responses from the layout, and how to `parse` the student responses into a string for
-grading.
-
-The {@link Activity.read `read()`} function reads the DOM to capture all student response data into a
-serializable object (in this case, an array with two elements). The hammock doesn't care what type of data
-this is, as long as `JSON.parse(JSON.stringify(data))` is structurally the same as `data`.
-
-The {@link Activity.init `init()`} function defines an initial object representing the state of a page with no
-response data. This is called when the assignment is newly-initialized or newly-reset.
-
-The {@link Activity.render `render()`} function changes the contents defined in the `layout` asset file based
-on the {@link QuestionSpec} it is given. It should be the only function that manipulates the DOM, and it has
-to be careful what changes it makes to the layout. This funciton must _always_ produce the same display given
-the same information, regardless of what sequence of `render` calls have happened earlier.
-
-The {@link Activity.parse `parse()`} function converts the object representating the state of the page into an
-array of strings, which will be used as the keys for grading. These keys appear again later in `questions.json`.
+array of strings, which will be used as the keys for grading. These keys are used later in `questions.json`.
 
 layout.html
 -----------
@@ -140,7 +96,7 @@ The `questions.json` asset defines how many parts a question has (this must agre
 `read` function). This file includes most of the grading logic, and needs to match up to the `parse` function
 defined in the {@link Activity}.
 
-The questions.json file should contain data that matches the description of a {@link QuestionSpec}.
+The `questions.json` file should contain data that matches the description of a {@link QuestionSpec}.
 ```
 
 OLI Hammock Commands
