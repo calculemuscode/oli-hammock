@@ -99,7 +99,6 @@ The `questions.json` asset defines how many parts a question has (this must agre
 defined in the {@link Activity}.
 
 The `questions.json` file should contain data that matches the description of a {@link QuestionSpec}.
-```
 
 OLI Hammock Commands
 ====================
@@ -109,3 +108,82 @@ OLI Hammock Commands
 `npm run dist` starts your activity running on the internet where you can share it, using the free functionality of [surge.sh](https://surge.sh/). If this doesn't work (for instance, because your project name is taken already), you may need to edit the URL that surge will try to publish to in `package.json`. (The address still needs to be a surge.sh address, like somethingorother.surge.sh).
 
 `npm run deploy` only works if you provided an OLI project repository root when you first ran `create-oli-hammock`. If you did this, then this will deploy your activity into that OLI project repository.
+
+Custom path
+===========
+
+One of the questions that `create-oli-hammock` asks is what the "custom path within the OLI content directory" should be. If your OLI project is organized like this:
+
+```
+- project root directory
+  |- build.xml
+  |- content
+  |  |- package.xml
+  |  |- webcontent
+  |  |- x-oli-workbook-page
+  |- organizations
+  |- tools
+```
+
+then the "extra path" should be the default, none.
+
+If your OLI project is organized like this:
+
+```
+- project root directory
+  |- build.xml
+  |- content
+  |  |- package.xml
+  |  |- Part1
+  |  |  |- package.xml
+  |  |  |- webcontent
+  |  |  |- x-oli-workbook-page
+  |  |- Part2
+  |  |  |- package.xml
+  |  |  |- webcontent
+  |  |  |- x-oli-workbook-page
+  |  |- Part3
+  |- organizations
+  |- tools
+``````
+
+then the "extra path" should be "Part1" or "Part2", depending on which subdirectory you want the embedded activity to be associated with.
+
+Preparing your OLI course
+=========================
+
+To modify your OLI project to handle OLI Hammock activities, you need to make three small changes:
+
+The project's `build.xml` file needs to have the following added inside of its `<patternset id="web.content.files">` element:
+
+```
+<include name="**/webcontent/**/*.json" />
+```
+
+The same `build.xml` file should also have the following added to the `<patternset id="resource.files">`
+
+```
+<include name="**/x-oli-embed-activity-highstakes/**/*.xml" />
+```
+
+The final change is in `tools/oli/oli-content-tools.conf`. You should search for the `resource_type` element with the id `"x-oli-embed-activity"`, duplicate it, and change the id in the duplicate to `"x-oli-embed-activity-highstakes"`.
+
+```
+<!-- Embed Activity -->
+<resource_type id="x-oli-embed-activity" display_name="Embed Activity">
+  <capabilities standalone="false" inline="true"/>
+  <resource_builder>
+    <class>edu.cmu.oli.content.tools.builder.plugins.SuperActivityResourceBuilder</class>
+  </resource_builder>
+</resource_type>
+
+<!-- Embed Activity -->
+<resource_type id="x-oli-embed-activity-highstakes" display_name="Embed Activity (With Gradebook)">
+  <capabilities standalone="false" inline="true"/>
+  <resource_builder>
+    <class>edu.cmu.oli.content.tools.builder.plugins.SuperActivityResourceBuilder</class>
+  </resource_builder>
+</resource_type>
+```
+
+This is a different use of the term "highstakes" than you see elsewhere in the OLI system. It just makes the OLI Hammock activities visible to the gradebook in the same way that all low-stakes inline activities are. (Without this change, OLI Hammock activities, and indeed all embedded activities, are completely invisible to the gradebook.)
