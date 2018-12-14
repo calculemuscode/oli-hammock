@@ -222,7 +222,7 @@ export class Runner<UserDefinedData> {
                 return total + x.score;
             }, 0);
             const pointsAvailable = this.question.parts.reduce((total, x) => total + x.score, 0);
-            const percentage = Math.min(100, Math.floor((100 * pointsEarned) / pointsAvailable));
+            const percentage = Math.min(100, Math.floor((100 * pointsEarned) / pointsAvailable)) / 100;
 
             // Part logging
             const dashboardLogging: Promise<void>[] = feedback.map((value, part) => {
